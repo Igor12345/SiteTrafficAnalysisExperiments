@@ -22,7 +22,6 @@ internal sealed class LinesWriter : IDisposable
 
     public void Dispose()
     {
-        _fileStream.Flush();
         _fileStream.Dispose();
     }
 }
