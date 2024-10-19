@@ -27,7 +27,7 @@ internal class LogsAnalyzerService : IHostedService
             return;
         }
 
-        TrafficAnalyzerRegardlessOfTheDay trafficAnalyzer = new TrafficAnalyzerRegardlessOfTheDay(_fileReaderFactory, files.Value);
+        var trafficAnalyzer = new TrafficAnalyzerDependingOnDay(_fileReaderFactory, files.Value);
         var loyalUsers = await trafficAnalyzer.FindLoyalUsersAsync();
         await SaveResultAsync(loyalUsers);
     }
