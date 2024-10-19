@@ -14,11 +14,12 @@ namespace LogsAnalyzer.Analyzers
         private readonly LineParser _parser;
         private int _currentEpoch;
 
-        public TrafficAnalyzerDependingOnDay(FileReaderFactory fileReaderFactory, IEnumerable<string> files)
+        public TrafficAnalyzerDependingOnDay(LineParser parser, FileReaderFactory fileReaderFactory,
+            IEnumerable<string> files)
         {
+            _parser = Guard.NotNull(parser);
             _files = Guard.NotNull(files);
             _fileReaderFactory = Guard.NotNull(fileReaderFactory);
-            _parser = new LineParser();
         }
 
         public async Task<List<ulong>> FindLoyalUsersAsync()

@@ -7,7 +7,7 @@ namespace LogsAnalyzer.UnitTests.Lines
         [Test]
         public void ShouldParseCorrectLine()
         {
-            LineParser parser = new LineParser();
+            LineParser parser = new LineParser(";");
             var customerId = 123456;
             var pageId = 98765;
             
@@ -24,7 +24,7 @@ namespace LogsAnalyzer.UnitTests.Lines
         [TestCase("some time;123;-456", "Invalid page id:")]
         public void ShouldNotParseInCorrectLine(string line, string partOfErrorMessage)
         {
-            LineParser parser = new LineParser();
+            LineParser parser = new LineParser(";");
 
             var parsingResult = parser.Parse(line);
 

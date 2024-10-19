@@ -1,6 +1,7 @@
 ﻿using Infrastructure;
 using LogsAnalyzer.Analyzers;
 using LogsAnalyzer.IOOperations;
+using LogsAnalyzer.Lines;
 using Microsoft.Extensions.Hosting;
 
 namespace ConsoleUI;
@@ -27,7 +28,9 @@ internal class LogsAnalyzerService : IHostedService
             return;
         }
 
-        var trafficAnalyzer = new TrafficAnalyzerDependingOnDay(_fileReaderFactory, files.Value);
+        LineParser parser = new LineParser(_configuration.LineDelimiter);
+        // var trafficAnalyzer = new TrafficAnalyzerDependingOnDay(parser, _fileReaderFactory, files.Value);
+        var trafficAnalyzer = new TrafficAnalyzerRegardlessOfTheDay(parser, _fileReaderFactory, files.Value);
         var loyalUsers = await trafficAnalyzer.FindLoyalUsersAsync();
         await SaveResultAsync(loyalUsers);
     }
