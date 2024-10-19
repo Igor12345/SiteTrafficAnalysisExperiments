@@ -1,6 +1,6 @@
 ﻿using Infrastructure;
+using Infrastructure.IOOperations;
 using LogsAnalyzer.Analyzers;
-using LogsAnalyzer.IOOperations;
 using LogsAnalyzer.Lines;
 using Microsoft.Extensions.Hosting;
 
@@ -29,8 +29,10 @@ internal class LogsAnalyzerService : IHostedService
         }
 
         LineParser parser = new LineParser(_configuration.LineDelimiter);
-        // var trafficAnalyzer = new TrafficAnalyzerDependingOnDay(parser, _fileReaderFactory, files.Value);
-        var trafficAnalyzer = new TrafficAnalyzerRegardlessOfTheDay(parser, _fileReaderFactory, files.Value);
+        LogsReader logsReader = new LogsReader(_fileReaderFactory, files.Value);
+
+        var trafficAnalyzer = new TrafficAnalyzerDependingOnDay(parser, logsReader);
+        // var trafficAnalyzer = new TrafficAnalyzerRegardlessOfTheDay(parser, logsReader);
         var loyalUsers = await trafficAnalyzer.FindLoyalUsersAsync();
         await SaveResultAsync(loyalUsers);
     }

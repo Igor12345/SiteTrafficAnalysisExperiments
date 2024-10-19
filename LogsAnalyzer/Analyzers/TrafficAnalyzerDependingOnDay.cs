@@ -1,5 +1,4 @@
 ﻿using Infrastructure;
-using LogsAnalyzer.IOOperations;
 using LogsAnalyzer.Lines;
 
 namespace LogsAnalyzer.Analyzers
@@ -9,49 +8,28 @@ namespace LogsAnalyzer.Analyzers
     /// </summary>
     public class TrafficAnalyzerDependingOnDay
     {
-        private readonly IEnumerable<string> _files;
-        private readonly FileReaderFactory _fileReaderFactory;
+        private readonly ILinesSourceAsync _linesSourceAsync;
         private readonly LineParser _parser;
         private int _currentEpoch;
+        DateTime _currentDate = DateTime.MinValue.Date;
 
-        public TrafficAnalyzerDependingOnDay(LineParser parser, FileReaderFactory fileReaderFactory,
-            IEnumerable<string> files)
+        public TrafficAnalyzerDependingOnDay(LineParser parser, ILinesSourceAsync linesSourceAsync)
         {
             _parser = Guard.NotNull(parser);
-            _files = Guard.NotNull(files);
-            _fileReaderFactory = Guard.NotNull(fileReaderFactory);
+            _linesSourceAsync = Guard.NotNull(linesSourceAsync);
         }
 
         public async Task<List<ulong>> FindLoyalUsersAsync()
         {
-            List<ulong> loyalUsers = new List<ulong>();
             //An epoch means each separate time segment that should be processed separately from others.
             //In this case, each day is an epoch. If you need to divide users by weeks or vice versa by hours,
             //then the epoch will be a week or an hour, respectively.
             //For simplicity, the epoch is determined by files, but in general, it is determined by timestamps.
             Dictionary<ulong, UserHistory> statistic = new Dictionary<ulong, UserHistory>();
+            List<ulong> loyalUsers = new List<ulong>();
 
-            foreach (string file in _files)
+            await foreach (string line in _linesSourceAsync)
             {
-                await ReadAndProcessFileAsync(file, statistic, loyalUsers);
-            }
-
-            return loyalUsers;
-        }
-
-        private async Task ReadAndProcessFileAsync(string file,
-            Dictionary<ulong, UserHistory> statistic, List<ulong> loyalCustomers)
-        {
-            int currentEpoch = UpdateEpoch();
-
-            using var fileReader = _fileReaderFactory.Create(file);
-
-            while (fileReader.Peek() > -1)
-            {
-                var line = await fileReader.ReadLineAsync();
-                if (line == null)
-                    break;
-
                 var parsingResult = _parser.Parse(line);
                 if (parsingResult.IsError)
                 {
@@ -59,7 +37,8 @@ namespace LogsAnalyzer.Analyzers
                     continue;
                 }
 
-                var (customerId, pageId) = parsingResult.Value;
+                var (customerId, pageId, dateTime) = parsingResult.Value;
+                int currentEpoch = UpdateEpoch(dateTime);
 
                 if (!statistic.TryGetValue(customerId, out _))
                 {
@@ -79,7 +58,7 @@ namespace LogsAnalyzer.Analyzers
                         if (!userHistory.Pages!.Contains(pageId))
                         {
                             statistic[customerId] = new UserHistory(currentEpoch, false, true, null);
-                            loyalCustomers.Add(customerId);
+                            loyalUsers.Add(customerId);
                             continue;
                         }
 
@@ -88,11 +67,18 @@ namespace LogsAnalyzer.Analyzers
 
                 }
             }
-        }
 
-        private int UpdateEpoch()
+            return loyalUsers;
+        }
+        
+        private int UpdateEpoch(DateTime dateTime)
         {
-            return ++_currentEpoch;
+            if (dateTime.Date > _currentDate)
+            {
+                _currentDate = dateTime.Date;
+                return ++_currentEpoch;
+            }
+            return _currentEpoch;
         }
 
         private void HandleError(string errorMessage)

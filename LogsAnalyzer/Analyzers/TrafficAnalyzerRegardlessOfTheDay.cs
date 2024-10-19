@@ -1,5 +1,4 @@
 ﻿using Infrastructure;
-using LogsAnalyzer.IOOperations;
 using LogsAnalyzer.Lines;
 
 namespace LogsAnalyzer.Analyzers
@@ -12,41 +11,23 @@ namespace LogsAnalyzer.Analyzers
     /// </summary>
     public class TrafficAnalyzerRegardlessOfTheDay
     {
-        private readonly IEnumerable<string> _files;
-        private readonly FileReaderFactory _fileReaderFactory;
         private readonly LineParser _parser;
-        public TrafficAnalyzerRegardlessOfTheDay(LineParser parser, FileReaderFactory fileReaderFactory,
-            IEnumerable<string> files)
+        private readonly ILinesSourceAsync _linesSourceAsync;
+
+        public TrafficAnalyzerRegardlessOfTheDay(LineParser parser, ILinesSourceAsync linesSourceAsync)
         {
             _parser = Guard.NotNull(parser);
-            _files = Guard.NotNull(files);
-            _fileReaderFactory = Guard.NotNull(fileReaderFactory);
+            _linesSourceAsync = Guard.NotNull(linesSourceAsync);
         }
 
         public async Task<List<ulong>> FindLoyalUsersAsync()
         {
-            List<ulong> loyalUsers = new List<ulong>();
             Dictionary<ulong, long> statistic = new Dictionary<ulong, long>();
+            List<ulong> loyalUsers = new List<ulong>();
 
-            foreach (string file in _files)
+            await foreach (string line in _linesSourceAsync)
             {
-                await ReadAndProcessFileAsync(file, statistic, loyalUsers);
-            }
-
-            return loyalUsers;
-        }
-
-        private async Task ReadAndProcessFileAsync(string file, Dictionary<ulong, long> statistic, List<ulong> loyalCustomers)
-        {
-            using var fileReader = _fileReaderFactory.Create(file);
-
-            while (fileReader.Peek() > -1)
-            {
-                var line = await fileReader.ReadLineAsync();
-                if (line == null)
-                    break;
-
-                var parsingResult = _parser.Parse(line);
+                var parsingResult = _parser.ParseShort(line);
                 if (parsingResult.IsError)
                 {
                     HandleError(parsingResult.ErrorMessage);
@@ -60,10 +41,12 @@ namespace LogsAnalyzer.Analyzers
                     if (prevPage > 0 && prevPage != pageId)
                     {
                         statistic[customerId] = -1;
-                        loyalCustomers.Add(customerId);
+                        loyalUsers.Add(customerId);
                     }
                 }
             }
+
+            return loyalUsers;
         }
 
         private void HandleError(string errorMessage)

@@ -11,7 +11,7 @@ namespace LogsAnalyzer.UnitTests.Lines
             var customerId = 123456;
             var pageId = 98765;
             
-            var parsingResult = parser.Parse($"some time;{customerId};{pageId}");
+            var parsingResult = parser.ParseShort($"some time;{customerId};{pageId}");
             
             Assert.That(parsingResult.Success, Is.True);
             Assert.That(parsingResult.Value.customerId, Is.EqualTo(customerId));
@@ -26,7 +26,7 @@ namespace LogsAnalyzer.UnitTests.Lines
         {
             LineParser parser = new LineParser(";");
 
-            var parsingResult = parser.Parse(line);
+            var parsingResult = parser.ParseShort(line);
 
             Assert.That(parsingResult.Success, Is.False);
             Assert.That(parsingResult.ErrorMessage, Is.Not.Null);

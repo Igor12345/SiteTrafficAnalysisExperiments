@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace LogsAnalyzer.IOOperations;
+namespace Infrastructure.IOOperations;
 
 public class FileReaderFactory
 {
