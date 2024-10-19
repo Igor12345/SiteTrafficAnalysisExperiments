@@ -4,7 +4,7 @@ using LogsAnalyzer.Analyzers;
 
 namespace ConsoleUI;
 
-internal class LogsReader : ILinesSourceAsync
+public class LogsReader : ILinesSourceAsync
 {
     private readonly FileReaderFactory _fileReaderFactory;
     private readonly string[] _files;

@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\ConsoleUI\ConsoleUI.csproj" />
     <ProjectReference Include="..\..\Infrastructure\Infrastructure.csproj" />
     <ProjectReference Include="..\..\LogsAnalyzer\LogsAnalyzer.csproj" />
     <ProjectReference Include="..\..\TestDataGenerator\FileCreator\FileCreator.csproj" />
