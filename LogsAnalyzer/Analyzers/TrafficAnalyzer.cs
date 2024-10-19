@@ -1,7 +1,4 @@
 ﻿using Infrastructure;
-using static System.Net.Mime.MediaTypeNames;
-using System.Collections.Generic;
-using System.Threading.Channels;
 using LogsAnalyzer.IOOperations;
 using LogsAnalyzer.Lines;
 

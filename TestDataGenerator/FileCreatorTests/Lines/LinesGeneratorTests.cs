@@ -1,5 +1,4 @@
 ﻿using FileCreator.Lines;
-using Moq;
 
 namespace FileCreatorTests.Lines;
 
