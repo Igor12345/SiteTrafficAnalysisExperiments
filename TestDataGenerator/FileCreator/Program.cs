@@ -26,14 +26,26 @@ namespace FileCreator
             FileCreatorConfiguration? fileCreatorConfiguration = configuration.GetRequiredSection("Config").Get<FileCreatorConfiguration>();
             //todo
             Debug.Assert(fileCreatorConfiguration != null, nameof(fileCreatorConfiguration) + " != null");
+
+            //todo
             if (string.IsNullOrEmpty(fileCreatorConfiguration.OutputDirectory))
+            {
                 fileCreatorConfiguration.OutputDirectory = Directory.GetCurrentDirectory();
+            }
+            else
+            {
+                if (!Path.IsPathFullyQualified(fileCreatorConfiguration.OutputDirectory))
+                    fileCreatorConfiguration.OutputDirectory = Path.Combine(Directory.GetCurrentDirectory(),
+                        fileCreatorConfiguration.OutputDirectory);
+                if (!Directory.Exists(fileCreatorConfiguration.OutputDirectory))
+                    Directory.CreateDirectory(fileCreatorConfiguration.OutputDirectory);
+            }
 
             var host = Host.CreateDefaultBuilder(args)
                 .ConfigureServices((_, services) =>
                 {
                     services.AddSingleton(fileCreatorConfiguration);
-                    services.AddSingleton<LineCreator>();
+                    services.AddSingleton<ILineCreator, LineCreator>();
                     services.AddSingleton<LinesGenerator>();
                     services.AddScoped<LinesWriterFactory>();
                     services.AddHostedService<CreatingFileService>();
