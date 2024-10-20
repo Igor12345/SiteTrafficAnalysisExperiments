@@ -9,7 +9,6 @@ public sealed class BuffersPool
     private readonly int _poolSize = 4;
     private readonly ConcurrentStack<byte[]> _buffers = new();
     private readonly SemaphoreSlim _semaphore;
-    private int _packageNumber = -1;
     private readonly int _recordChunksLength;
     static readonly object _locker = new();
 
@@ -58,7 +57,7 @@ public sealed class BuffersPool
             }
             ExpandableStorage<LogEntry> linesStorage = RentLinesStorage();
 
-            return new DataChunkContainer(buffer!, linesStorage, Interlocked.Increment(ref _packageNumber), false);
+            return new DataChunkContainer(buffer!, linesStorage, false);
         }
         finally
         {

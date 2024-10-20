@@ -1,5 +1,4 @@
 ﻿using Infrastructure;
-using Infrastructure.ByteOperations;
 using Infrastructure.IOOperations;
 using LogsAnalyzer.LogEntries;
 
@@ -24,19 +23,16 @@ public class LogAsBytesReader : ILinesSourceAsync
     public async IAsyncEnumerator<LogEntry> GetAsyncEnumerator(
         CancellationToken cancellationToken = new CancellationToken())
     {
-        //The check is redundant in case of sequential reading from file into containers
-        int iteration = 0;
         foreach (string file in _files)
         {
-            using var fileReader = _fileReaderFactory.CreateBytesProducer(file, iteration);
+            await using var fileReader = _fileReaderFactory.CreateBytesProducer(file, cancellationToken);
 
-            byte[] restOfLastLine = Array.Empty<byte>();
+            byte[] restOfLastLine = [];
             while (true)
             {
                 DataChunkContainer? container = await _buffersPool.GetNextAsync();
                 restOfLastLine.CopyTo(container.RowData, 0);
                 container.PrePopulatedBytesLength = restOfLastLine.Length;
-                iteration = container.PackageNumber;
 
                 //todo use different types, like PreContainer, PopulatedContainer to avoid accidental mistakes
                 DataChunkContainer populatedContainer = await fileReader.WriteBytesToBufferAsync(container);
@@ -61,20 +57,11 @@ public class LogAsBytesReader : ILinesSourceAsync
 
                 //we need to preserve the rest of the last line, and parse it on the next iteration
                 int remainingBytesLength = populatedContainer.WrittenBytesLength - extractionResult.StartRemainingBytes;
-                if (remainingBytesLength <= 0)
-                {
-                    Console.WriteLine(
-                        $"Iteration: {iteration++}, rest of the LAST line is {ByteToStringConverter.Convert(restOfLastLine)}");
-                }
-
+                
                 restOfLastLine = new byte[remainingBytesLength];
                 populatedContainer.RowData.AsSpan()[
                     extractionResult.StartRemainingBytes..populatedContainer.WrittenBytesLength].CopyTo(restOfLastLine);
-
-                //todo
-                Console.WriteLine(
-                    $"Iteration: {iteration++}, rest of the line {ByteToStringConverter.Convert(restOfLastLine)}");
-
+                
                 bool last = populatedContainer.IsLastPart;
 
                 //don't use try/finally, let the exception propagate, there is nothing we can do here.

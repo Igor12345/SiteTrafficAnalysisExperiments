@@ -11,9 +11,9 @@ namespace DataProcessingBenchmarks.IOOperations
     [MemoryDiagnoser]
     public class AnaliseLogsPerformance
     {
-        private string[] _sourceFilePaths;
-        private string _currentDirectory;
-        private FileReaderFactory _fileReaderFactory;
+        private string[]? _sourceFilePaths;
+        private string? _currentDirectory;
+        private FileReaderFactory? _fileReaderFactory;
 
         [GlobalSetup]
         public void GlobalSetup()
@@ -49,6 +49,13 @@ namespace DataProcessingBenchmarks.IOOperations
         [GlobalCleanup]
         public void Cleanup()
         {
+            if (_sourceFilePaths != null)
+            {
+                foreach (string filePath in _sourceFilePaths)
+                {
+                    File.Delete(filePath);
+                }
+            }
         }
 
         [GcServer(true)]

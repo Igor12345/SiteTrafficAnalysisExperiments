@@ -8,12 +8,10 @@ public class BytesProducer : IBytesProducer
     private readonly FileStream _stream;
     private readonly string _filePath;
     private readonly int _bufferSize = 4096;
-    private int _lastProcessedPackage;
     private readonly AsyncLock _lock;
 
-    public BytesProducer(string fullFileName, int lastProcessedPackage = 0, CancellationToken cancellationToken = new())
+    public BytesProducer(string fullFileName, CancellationToken cancellationToken = new())
     {
-        _lastProcessedPackage = lastProcessedPackage;
         _cancellationToken = cancellationToken;
         _filePath = Guard.FileExist(fullFileName);
         _stream = new FileStream(_filePath, FileMode.Open, FileAccess.Read, FileShare.None,
@@ -33,9 +31,6 @@ public class BytesProducer : IBytesProducer
 
         using (var _ = await _lock.LockAsync())
         {
-            if (dataChunkPackage.PackageNumber != _lastProcessedPackage++)
-                throw new InvalidOperationException("Wrong packages sequence.");
-
             result = await ReadBytesAsync(dataChunkPackage.RowData, dataChunkPackage.PrePopulatedBytesLength,
                 _cancellationToken);
         }
