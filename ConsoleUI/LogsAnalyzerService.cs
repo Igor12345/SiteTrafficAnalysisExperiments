@@ -29,11 +29,11 @@ internal class LogsAnalyzerService : IHostedService
         }
 
         LineParser parser = new LineParser(_configuration.LineDelimiter);
-        LogsReader logsReader = new LogsReader(_fileReaderFactory, files.Value);
+        ILinesSourceAsync logsReader = new LogsReader(_fileReaderFactory, files.Value);
 
-        var trafficAnalyzer = new TrafficAnalyzerDependingOnDay(parser, logsReader);
-        // var trafficAnalyzer = new TrafficAnalyzerRegardlessOfTheDay(parser, logsReader);
-        var loyalUsers = await trafficAnalyzer.FindLoyalUsersAsync();
+        ITrafficAnalyzer trafficAnalyzer = new TrafficAnalyzerDependingOnDay(parser);
+        // ITrafficAnalyzer trafficAnalyzer = new TrafficAnalyzerRegardlessOfTheDay(parser);
+        var loyalUsers = await trafficAnalyzer.FindLoyalUsersAsync(logsReader);
         await SaveResultAsync(loyalUsers);
     }
 

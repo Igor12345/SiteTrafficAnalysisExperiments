@@ -9,23 +9,21 @@ namespace LogsAnalyzer.Analyzers
     /// When a user is first mentioned in a log, his ID and page identifier are entered into the dictionary.When the user is next recorded,
     /// if another page is specified there, the value in the dictionary changes to negative, i.e.at least two different pages were visited.
     /// </summary>
-    public class TrafficAnalyzerRegardlessOfTheDay
+    public class TrafficAnalyzerRegardlessOfTheDay : ITrafficAnalyzer
     {
         private readonly LineParser _parser;
-        private readonly ILinesSourceAsync _linesSourceAsync;
 
-        public TrafficAnalyzerRegardlessOfTheDay(LineParser parser, ILinesSourceAsync linesSourceAsync)
+        public TrafficAnalyzerRegardlessOfTheDay(LineParser parser)
         {
             _parser = Guard.NotNull(parser);
-            _linesSourceAsync = Guard.NotNull(linesSourceAsync);
         }
 
-        public async Task<List<ulong>> FindLoyalUsersAsync()
+        public async Task<List<ulong>> FindLoyalUsersAsync(IAsyncEnumerable<string> linesSourceAsync)
         {
             Dictionary<ulong, long> statistic = new Dictionary<ulong, long>();
             List<ulong> loyalUsers = new List<ulong>();
 
-            await foreach (string line in _linesSourceAsync)
+            await foreach (string line in linesSourceAsync)
             {
                 var parsingResult = _parser.ParseShort(line);
                 if (parsingResult.IsError)

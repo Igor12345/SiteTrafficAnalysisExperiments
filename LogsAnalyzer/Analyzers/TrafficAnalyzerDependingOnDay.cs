@@ -6,20 +6,19 @@ namespace LogsAnalyzer.Analyzers
     /// <summary>
     /// User loyalty is determined by whether the user has visited different site pages on different days.
     /// </summary>
-    public class TrafficAnalyzerDependingOnDay
+    public class TrafficAnalyzerDependingOnDay : ITrafficAnalyzer
     {
-        private readonly ILinesSourceAsync _linesSourceAsync;
+        // private readonly ILinesSourceAsync _linesSourceAsync;
         private readonly LineParser _parser;
         private int _currentEpoch;
         DateTime _currentDate = DateTime.MinValue.Date;
 
-        public TrafficAnalyzerDependingOnDay(LineParser parser, ILinesSourceAsync linesSourceAsync)
+        public TrafficAnalyzerDependingOnDay(LineParser parser)
         {
             _parser = Guard.NotNull(parser);
-            _linesSourceAsync = Guard.NotNull(linesSourceAsync);
         }
 
-        public async Task<List<ulong>> FindLoyalUsersAsync()
+        public async Task<List<ulong>> FindLoyalUsersAsync(IAsyncEnumerable<string> linesSourceAsync)
         {
             //An epoch means each separate time segment that should be processed separately from others.
             //In this case, each day is an epoch. If you need to divide users by weeks or vice versa by hours,
@@ -28,7 +27,7 @@ namespace LogsAnalyzer.Analyzers
             Dictionary<ulong, UserHistory> statistic = new Dictionary<ulong, UserHistory>();
             List<ulong> loyalUsers = new List<ulong>();
 
-            await foreach (string line in _linesSourceAsync)
+            await foreach (string line in linesSourceAsync)
             {
                 var parsingResult = _parser.Parse(line);
                 if (parsingResult.IsError)

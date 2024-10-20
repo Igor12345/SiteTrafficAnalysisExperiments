@@ -34,11 +34,11 @@ namespace DataProcessingBenchmarks.IOOperations
         {
             int s = 0;
             LineParser parser = new LineParser(";");
-            LogsReader logsReader = new LogsReader(_fileReaderFactory, _sourceFilePaths);
+            ILinesSourceAsync logsReader = new LogsReader(_fileReaderFactory, _sourceFilePaths);
 
-            var trafficAnalyzer = new TrafficAnalyzerDependingOnDay(parser, logsReader);
-            // var trafficAnalyzer = new TrafficAnalyzerRegardlessOfTheDay(parser, logsReader);
-            var loyalUsers = await trafficAnalyzer.FindLoyalUsersAsync();
+            ITrafficAnalyzer trafficAnalyzer = new TrafficAnalyzerDependingOnDay(parser);
+            // ITrafficAnalyzer trafficAnalyzer = new TrafficAnalyzerRegardlessOfTheDay(parser, logsReader);
+            var loyalUsers = await trafficAnalyzer.FindLoyalUsersAsync(logsReader);
             return loyalUsers.Count;
         }
     }
