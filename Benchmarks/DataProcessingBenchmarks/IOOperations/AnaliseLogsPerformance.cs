@@ -1,11 +1,10 @@
 ﻿using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Configs;
-using ConsoleUI;
 using FileCreator.Lines;
 using FileCreator;
 using Infrastructure.IOOperations;
 using LogsAnalyzer.Analyzers;
 using LogsAnalyzer.LogEntries;
+using LogsAnalyzer.LogReader;
 
 namespace DataProcessingBenchmarks.IOOperations
 {
@@ -19,11 +18,7 @@ namespace DataProcessingBenchmarks.IOOperations
         [GlobalSetup]
         public void GlobalSetup()
         {
-            //todo
             _currentDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Logs");
-            Console.WriteLine($"<<------------------>>");
-            Console.WriteLine($"CurrentDirectory: {_currentDirectory}");
-            Console.WriteLine($"<<------------------>>");
             if (!Directory.Exists(_currentDirectory))
                 Directory.CreateDirectory(_currentDirectory);
 
@@ -62,10 +57,10 @@ namespace DataProcessingBenchmarks.IOOperations
         {
             int s = 0;
             LogEntryParser parser = new LogEntryParser(";");
-            ILinesSourceAsync logsReader = new LogsReader(_fileReaderFactory, _sourceFilePaths, parser);
+            ILinesSourceAsync logsReader = new LogAsStringsReader(_fileReaderFactory, _sourceFilePaths, parser);
 
-            ITrafficAnalyzer trafficAnalyzer = new TrafficAnalyzerDependingOnDay();
-            // ITrafficAnalyzer trafficAnalyzer = new TrafficAnalyzerRegardlessOfTheDay();
+            // ITrafficAnalyzer trafficAnalyzer = new TrafficAnalyzerDependingOnDay();
+            ITrafficAnalyzer trafficAnalyzer = new TrafficAnalyzerRegardlessOfTheDay();
             var loyalUsers = await trafficAnalyzer.FindLoyalUsersAsync(logsReader);
             return loyalUsers.Count;
         }
@@ -76,10 +71,10 @@ namespace DataProcessingBenchmarks.IOOperations
         {
             int s = 0;
             LogEntryParser parser = new LogEntryParser(";");
-            ILinesSourceAsync logsReader = new LogsAsBytesReader(_fileReaderFactory, _sourceFilePaths, new LogEntriesExtractor(parser));
+            ILinesSourceAsync logsReader = new LogAsBytesReader(_fileReaderFactory, _sourceFilePaths, new LogEntriesExtractor(parser));
 
-            ITrafficAnalyzer trafficAnalyzer = new TrafficAnalyzerDependingOnDay();
-            // ITrafficAnalyzer trafficAnalyzer = new TrafficAnalyzerRegardlessOfTheDay();
+            // ITrafficAnalyzer trafficAnalyzer = new TrafficAnalyzerDependingOnDay();
+            ITrafficAnalyzer trafficAnalyzer = new TrafficAnalyzerRegardlessOfTheDay();
             var loyalUsers = await trafficAnalyzer.FindLoyalUsersAsync(logsReader);
             return loyalUsers.Count;
         }

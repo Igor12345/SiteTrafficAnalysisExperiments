@@ -1,6 +1,6 @@
 ﻿using LogsAnalyzer.LogEntries;
 
-namespace LogsAnalyzer.Analyzers;
+namespace LogsAnalyzer.LogReader;
 
 public interface ILinesSourceAsync : IAsyncEnumerable<LogEntry>
 {

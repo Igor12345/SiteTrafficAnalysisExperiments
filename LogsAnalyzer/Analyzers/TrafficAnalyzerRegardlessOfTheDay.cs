@@ -1,4 +1,5 @@
-﻿using LogsAnalyzer.LogEntries;
+﻿using LogsAnalyzer.DataStructures;
+using LogsAnalyzer.LogEntries;
 
 namespace LogsAnalyzer.Analyzers
 {
@@ -13,7 +14,7 @@ namespace LogsAnalyzer.Analyzers
         public async Task<List<ulong>> FindLoyalUsersAsync(IAsyncEnumerable<LogEntry> logEntriesSourceAsync)
         {
             Dictionary<ulong, long> statistic = new Dictionary<ulong, long>();
-            List<ulong> loyalUsers = new List<ulong>();
+            ExpandableStorage<ulong> loyalUsers = new ExpandableStorage<ulong>(500);
 
             await foreach (LogEntry logEntry in logEntriesSourceAsync)
             {
@@ -28,7 +29,12 @@ namespace LogsAnalyzer.Analyzers
                 }
             }
 
-            return loyalUsers;
+            int loyalUsersNumber = loyalUsers.Count;
+            ulong[] loyalUsersResult = new ulong[loyalUsersNumber];
+            loyalUsers.CopyTo(loyalUsersResult, loyalUsersNumber);
+
+            //todo update interface
+            return [.. loyalUsersResult];
         }
 
         private void HandleError(string errorMessage)

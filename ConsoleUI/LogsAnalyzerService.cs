@@ -2,6 +2,7 @@
 using Infrastructure.IOOperations;
 using LogsAnalyzer.Analyzers;
 using LogsAnalyzer.LogEntries;
+using LogsAnalyzer.LogReader;
 using Microsoft.Extensions.Hosting;
 
 namespace ConsoleUI;
@@ -29,8 +30,8 @@ internal class LogsAnalyzerService : IHostedService
         }
 
         ILogEntryParser parser = new LogEntryParser(_configuration.LineDelimiter);
-        ILinesSourceAsync logsReader = new LogsReader(_fileReaderFactory, files.Value, parser);
-        ILinesSourceAsync logAsBytesReader = new LogsAsBytesReader(_fileReaderFactory, files.Value, new LogEntriesExtractor(parser));
+        ILinesSourceAsync logsReader = new LogAsStringsReader(_fileReaderFactory, files.Value, parser);
+        ILinesSourceAsync logAsBytesReader = new LogAsBytesReader(_fileReaderFactory, files.Value, new LogEntriesExtractor(parser));
 
 
         ITrafficAnalyzer trafficAnalyzer = new TrafficAnalyzerDependingOnDay();

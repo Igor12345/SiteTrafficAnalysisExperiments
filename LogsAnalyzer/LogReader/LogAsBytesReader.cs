@@ -1,18 +1,17 @@
 ﻿using Infrastructure;
 using Infrastructure.IOOperations;
-using LogsAnalyzer.Analyzers;
 using LogsAnalyzer.DataStructures;
 using LogsAnalyzer.LogEntries;
 
-namespace ConsoleUI;
+namespace LogsAnalyzer.LogReader;
 
-public class LogsAsBytesReader : ILinesSourceAsync
+public class LogAsBytesReader : ILinesSourceAsync
 {
     private readonly LogEntriesExtractor _logEntriesExtractor;
     private readonly FileReaderFactory _fileReaderFactory;
     private readonly string[] _files;
 
-    public LogsAsBytesReader(FileReaderFactory fileReaderFactory, string[] files, LogEntriesExtractor logEntriesExtractor)
+    public LogAsBytesReader(FileReaderFactory fileReaderFactory, string[] files, LogEntriesExtractor logEntriesExtractor)
     {
         _fileReaderFactory = Guard.NotNull(fileReaderFactory);
         _files = Guard.NotNull(files);
