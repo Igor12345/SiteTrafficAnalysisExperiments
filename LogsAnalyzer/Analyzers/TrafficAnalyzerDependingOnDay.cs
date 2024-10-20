@@ -1,4 +1,5 @@
 ﻿using Infrastructure;
+using LogsAnalyzer.DataStructures;
 using LogsAnalyzer.Exception;
 using LogsAnalyzer.Lines;
 
@@ -27,7 +28,7 @@ namespace LogsAnalyzer.Analyzers
             //then the epoch will be a week or an hour, respectively.
             //For simplicity, the epoch is determined by files, but in general, it is determined by timestamps.
             Dictionary<ulong, UserHistory> trafficHistory = new Dictionary<ulong, UserHistory>();
-            List<ulong> loyalUsers = new List<ulong>();
+            ExpandableStorage<ulong> loyalUsers = new ExpandableStorage<ulong>(500); //i.e. in fact 512
 
             await foreach (string line in linesSourceAsync)
             {
@@ -67,16 +68,19 @@ namespace LogsAnalyzer.Analyzers
 
                         trafficHistory[customerId] = userHistory with { CurrentEpoch = currentEpoch, FirstEpoch = false };
                     }
-
                 }
             }
 
             //Controversial decision, not for real application
             if (_logRecordsProcessed > 0 && !trafficHistory.Any())
                 throw new IncorrectLogRecordsException();
-            
 
-            return loyalUsers;
+            int loyalUsersNumber = loyalUsers.Count;
+            ulong[] loyalUsersResult = new ulong[loyalUsersNumber];
+            loyalUsers.CopyTo(loyalUsersResult, loyalUsersNumber);
+
+            //todo update interface
+            return [..loyalUsersResult];
         }
         
         private int UpdateEpoch(DateTime dateTime)
