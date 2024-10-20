@@ -1,12 +1,12 @@
 ﻿using Infrastructure;
 
-namespace LogsAnalyzer.Lines;
+namespace LogsAnalyzer.LogEntries;
 
-public class LineParser
+public class LogEntryParser
 {
     private readonly string _delimiter;
 
-    public LineParser(string delimiter)
+    public LogEntryParser(string delimiter)
     {
         _delimiter = Guard.NotNullOrEmpty(delimiter);
     }

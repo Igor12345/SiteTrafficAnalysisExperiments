@@ -2,7 +2,7 @@
 using ConsoleUI;
 using Infrastructure.IOOperations;
 using LogsAnalyzer.Analyzers;
-using LogsAnalyzer.Lines;
+using LogsAnalyzer.LogEntries;
 
 namespace DataProcessingBenchmarks.IOOperations
 {
@@ -33,7 +33,7 @@ namespace DataProcessingBenchmarks.IOOperations
         public async Task<int> AnalyseLogs()
         {
             int s = 0;
-            LineParser parser = new LineParser(";");
+            LogEntryParser parser = new LogEntryParser(";");
             ILinesSourceAsync logsReader = new LogsReader(_fileReaderFactory, _sourceFilePaths);
 
             ITrafficAnalyzer trafficAnalyzer = new TrafficAnalyzerDependingOnDay(parser);

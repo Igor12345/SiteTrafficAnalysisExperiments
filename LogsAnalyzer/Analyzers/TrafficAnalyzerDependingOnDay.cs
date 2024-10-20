@@ -1,7 +1,7 @@
 ﻿using Infrastructure;
 using LogsAnalyzer.DataStructures;
 using LogsAnalyzer.Exception;
-using LogsAnalyzer.Lines;
+using LogsAnalyzer.LogEntries;
 
 namespace LogsAnalyzer.Analyzers
 {
@@ -11,12 +11,12 @@ namespace LogsAnalyzer.Analyzers
     public class TrafficAnalyzerDependingOnDay : ITrafficAnalyzer
     {
         // private readonly ILinesSourceAsync _linesSourceAsync;
-        private readonly LineParser _parser;
+        private readonly LogEntryParser _parser;
         private int _currentEpoch;
         private int _logRecordsProcessed;
         DateTime _currentDate = DateTime.MinValue.Date;
 
-        public TrafficAnalyzerDependingOnDay(LineParser parser)
+        public TrafficAnalyzerDependingOnDay(LogEntryParser parser)
         {
             _parser = Guard.NotNull(parser);
         }

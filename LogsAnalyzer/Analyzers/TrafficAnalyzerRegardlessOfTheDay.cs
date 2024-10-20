@@ -1,5 +1,5 @@
 ﻿using Infrastructure;
-using LogsAnalyzer.Lines;
+using LogsAnalyzer.LogEntries;
 
 namespace LogsAnalyzer.Analyzers
 {
@@ -11,9 +11,9 @@ namespace LogsAnalyzer.Analyzers
     /// </summary>
     public class TrafficAnalyzerRegardlessOfTheDay : ITrafficAnalyzer
     {
-        private readonly LineParser _parser;
+        private readonly LogEntryParser _parser;
 
-        public TrafficAnalyzerRegardlessOfTheDay(LineParser parser)
+        public TrafficAnalyzerRegardlessOfTheDay(LogEntryParser parser)
         {
             _parser = Guard.NotNull(parser);
         }

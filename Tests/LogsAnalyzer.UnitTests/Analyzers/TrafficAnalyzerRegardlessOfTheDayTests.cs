@@ -1,5 +1,5 @@
 ﻿using LogsAnalyzer.Analyzers;
-using LogsAnalyzer.Lines;
+using LogsAnalyzer.LogEntries;
 
 namespace LogsAnalyzer.UnitTests.Analyzers
 {
@@ -10,7 +10,7 @@ namespace LogsAnalyzer.UnitTests.Analyzers
         [TestCaseSource(nameof(Logs), new object[] { 2 })]
         public async Task ShouldFindLoyalUsers((IAsyncEnumerable<string> logRecordsSource, int expectedLoyalUsers, ulong[] loyalUsers) td)
         {
-            LineParser parser = new LineParser(";");
+            LogEntryParser parser = new LogEntryParser(";");
             TrafficAnalyzerRegardlessOfTheDay analyzer = new TrafficAnalyzerRegardlessOfTheDay(parser);
             
             var foundUsers = await analyzer.FindLoyalUsersAsync(td.logRecordsSource);

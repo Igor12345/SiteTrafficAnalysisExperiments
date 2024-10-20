@@ -1,6 +1,6 @@
 ﻿using LogsAnalyzer.Analyzers;
 using LogsAnalyzer.Exception;
-using LogsAnalyzer.Lines;
+using LogsAnalyzer.LogEntries;
 
 namespace LogsAnalyzer.UnitTests.Analyzers;
 
@@ -14,7 +14,7 @@ internal class TrafficAnalyzerDependingOnDayTests
         (IAsyncEnumerable<string> logRecordsSource, int expectedLoyalUsers, ulong[] loyalUsers) td)
     {
         //using the wrong delimiter, so the parser can't parse this log
-        LineParser parser = new LineParser("_");
+        LogEntryParser parser = new LogEntryParser("_");
         ITrafficAnalyzer analyzer = new TrafficAnalyzerDependingOnDay(parser);
 
         Assert.ThrowsAsync<IncorrectLogRecordsException>(() => analyzer.FindLoyalUsersAsync(td.logRecordsSource));
@@ -27,7 +27,7 @@ internal class TrafficAnalyzerDependingOnDayTests
     public async Task ShouldFindLoyalUsers(
         (IAsyncEnumerable<string> logRecordsSource, int expectedLoyalUsers, ulong[] loyalUsers) td)
     {
-        LineParser parser = new LineParser(";");
+        LogEntryParser parser = new LogEntryParser(";");
         ITrafficAnalyzer analyzer = new TrafficAnalyzerDependingOnDay(parser);
 
         var foundUsers = await analyzer.FindLoyalUsersAsync(td.logRecordsSource);

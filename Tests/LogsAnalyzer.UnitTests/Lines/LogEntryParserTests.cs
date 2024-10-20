@@ -1,13 +1,13 @@
-using LogsAnalyzer.Lines;
+using LogsAnalyzer.LogEntries;
 
 namespace LogsAnalyzer.UnitTests.Lines
 {
-    public class LineParserTests
+    public class LogEntryParserTests
     {
         [Test]
         public void ShouldParseCorrectLineShortVersion()
         {
-            LineParser parser = new LineParser(";");
+            LogEntryParser parser = new LogEntryParser(";");
             var customerId = 123456;
             var pageId = 98765;
             
@@ -24,7 +24,7 @@ namespace LogsAnalyzer.UnitTests.Lines
         [TestCase("some time;123;-456", "Invalid page id:")]
         public void ShouldNotParseInCorrectLineShortVersion(string line, string partOfErrorMessage)
         {
-            LineParser parser = new LineParser(";");
+            LogEntryParser parser = new LogEntryParser(";");
 
             var parsingResult = parser.ParseShort(line);
 
@@ -36,7 +36,7 @@ namespace LogsAnalyzer.UnitTests.Lines
         [Test]
         public void ShouldParseCorrectLineFullVersion()
         {
-            LineParser parser = new LineParser(";");
+            LogEntryParser parser = new LogEntryParser(";");
             var customerId = 123456;
             var pageId = 98765;
 
@@ -54,7 +54,7 @@ namespace LogsAnalyzer.UnitTests.Lines
         [TestCase("2024-10-19T22:19:31;123;-456", "Invalid page id:")]
         public void ShouldNotParseInCorrectLineFullVersion(string line, string partOfErrorMessage)
         {
-            LineParser parser = new LineParser(";");
+            LogEntryParser parser = new LogEntryParser(";");
 
             var parsingResult = parser.Parse(line);
 
