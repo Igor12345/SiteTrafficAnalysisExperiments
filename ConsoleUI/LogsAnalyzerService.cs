@@ -4,20 +4,23 @@ using LogsAnalyzer.Analyzers;
 using LogsAnalyzer.LogEntries;
 using LogsAnalyzer.LogReader;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace ConsoleUI;
 
 internal class LogsAnalyzerService : IHostedService
 {
+    private readonly ILogger<LogsAnalyzerService> _logger;
     private readonly IResultsSaver _resultsSaver;
     private readonly LogReaderConfiguration _configuration;
     private readonly FileReaderFactory _fileReaderFactory;
 
-    public LogsAnalyzerService(LogReaderConfiguration configuration, IResultsSaver resultsSaver)
+    public LogsAnalyzerService(LogReaderConfiguration configuration, IResultsSaver resultsSaver, ILogger<LogsAnalyzerService> logger)
     {
         _configuration = Guard.NotNull(configuration);
         _resultsSaver = Guard.NotNull(resultsSaver);
         _fileReaderFactory = new FileReaderFactory();
+        _logger = Guard.NotNull(logger);
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)
@@ -28,10 +31,11 @@ internal class LogsAnalyzerService : IHostedService
             ProcessErrors(files.ErrorMessage);
             return;
         }
+        _logger.LogInformation($"{files.Value.Length} logs will be analyzed.");
 
         ILogEntryParser parser = new LogEntryParser(_configuration.LineDelimiter);
         ILinesSourceAsync logsReader = new LogAsStringsReader(_fileReaderFactory, files.Value, parser);
-        ILinesSourceAsync logAsBytesReader = new LogAsBytesReader(_fileReaderFactory, files.Value, new LogEntriesExtractor(parser));
+        ILinesSourceAsync logAsBytesReader = new LogAsBytesReader(_fileReaderFactory, files.Value, new LogEntriesExtractor(parser), _logger);
         
         ITrafficAnalyzer trafficAnalyzer = new TrafficAnalyzerDependingOnDay();
         // ITrafficAnalyzer trafficAnalyzer = new TrafficAnalyzerRegardlessOfTheDay();
@@ -48,8 +52,7 @@ internal class LogsAnalyzerService : IHostedService
 
     private void ProcessErrors(string errorMessage)
     {
-        Console.WriteLine("Something went wrong");
-        Console.WriteLine(errorMessage);
+        _logger.LogError(errorMessage);
     }
 
     private Result<string[]> GetLogFiles()

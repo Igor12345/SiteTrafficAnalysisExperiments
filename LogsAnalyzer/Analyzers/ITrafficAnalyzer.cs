@@ -1,4 +1,4 @@
-﻿using LogEntry = LogsAnalyzer.LogEntries.LogEntry;
+﻿using LogsAnalyzer.LogEntries;
 
 namespace LogsAnalyzer.Analyzers;
 

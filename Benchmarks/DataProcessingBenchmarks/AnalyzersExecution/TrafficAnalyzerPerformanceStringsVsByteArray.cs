@@ -78,7 +78,7 @@ namespace DataProcessingBenchmarks.AnalyzersExecution
         public async Task<int> AnalyseLogAsBytes()
         {
             LogEntryParser parser = new LogEntryParser(";");
-            ILinesSourceAsync logsReader = new LogAsBytesReader(_fileReaderFactory!, _sourceFilePaths!, new LogEntriesExtractor(parser));
+            ILinesSourceAsync logsReader = new LogAsBytesReader(_fileReaderFactory!, _sourceFilePaths!, new LogEntriesExtractor(parser), new EmptyLogger());
 
             var loyalUsers = await _trafficAnalyzer.FindLoyalUsersAsync(logsReader);
             return loyalUsers.Count;

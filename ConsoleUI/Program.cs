@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace ConsoleUI
 {
@@ -27,8 +28,16 @@ namespace ConsoleUI
 
             hostBuilder.ConfigureServices((context, services) =>
             {
+                Log.Logger = new LoggerConfiguration()
+                    .ReadFrom.Configuration(context.Configuration)
+                    .Enrich.FromLogContext()
+                    .WriteTo.Console()
+                    .CreateLogger();
+
                 LogReaderConfiguration? configuration =
                     context.Configuration.GetRequiredSection("Config").Get<LogReaderConfiguration>();
+
+                Debug.Assert(configuration != null, nameof(configuration) + " != null");
 
                 //todo
                 if (string.IsNullOrEmpty(configuration.LogsFolder))
@@ -48,7 +57,7 @@ namespace ConsoleUI
                 services.AddHostedService<LogsAnalyzerService>();
             });
 
-            IHost host = hostBuilder.Build();
+            IHost host = hostBuilder.UseSerilog().Build();
             await host.RunAsync();
         }
     }

@@ -1,7 +1,6 @@
 ﻿using Infrastructure;
 using Infrastructure.IOOperations;
 using LogsAnalyzer.LogEntries;
-using LogEntry = LogsAnalyzer.LogEntries.LogEntry;
 
 namespace LogsAnalyzer.LogReader;
 

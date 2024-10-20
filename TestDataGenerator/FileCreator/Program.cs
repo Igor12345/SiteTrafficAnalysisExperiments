@@ -24,7 +24,6 @@ namespace FileCreator
                 .CreateLogger();
 
             FileCreatorConfiguration? fileCreatorConfiguration = configuration.GetRequiredSection("Config").Get<FileCreatorConfiguration>();
-            //todo
             Debug.Assert(fileCreatorConfiguration != null, nameof(fileCreatorConfiguration) + " != null");
 
             //todo
