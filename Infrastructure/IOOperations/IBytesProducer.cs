@@ -1,8 +1,6 @@
 ﻿namespace Infrastructure.IOOperations;
 
-public interface IBytesProducer : IAsyncDisposable, IDisposable
+public interface IBytesProducer<T> : IAsyncDisposable, IDisposable
 {
-    Task<byte[]> WriteBytesToBufferAsync();
-
-    Task<DataChunkContainer> WriteBytesToBufferAsync(DataChunkContainer dataChunkPackage);
+    Task<DataChunkContainer<T>> WriteBytesToBufferAsync(DataChunkContainer<T> dataChunkPackage);
 }

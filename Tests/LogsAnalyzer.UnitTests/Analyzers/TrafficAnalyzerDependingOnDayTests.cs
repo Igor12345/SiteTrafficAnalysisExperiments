@@ -1,5 +1,4 @@
-﻿using Infrastructure;
-using LogsAnalyzer.Analyzers;
+﻿using LogsAnalyzer.Analyzers;
 using LogsAnalyzer.Exception;
 using LogsAnalyzer.LogEntries;
 

@@ -1,4 +1,4 @@
-﻿using Infrastructure;
+﻿using LogEntry = LogsAnalyzer.LogEntries.LogEntry;
 
 namespace LogsAnalyzer.Analyzers;
 

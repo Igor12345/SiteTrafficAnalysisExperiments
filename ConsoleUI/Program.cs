@@ -27,7 +27,7 @@ namespace ConsoleUI
 
             hostBuilder.ConfigureServices((context, services) =>
             {
-                LogReaderConfiguration configuration =
+                LogReaderConfiguration? configuration =
                     context.Configuration.GetRequiredSection("Config").Get<LogReaderConfiguration>();
 
                 //todo

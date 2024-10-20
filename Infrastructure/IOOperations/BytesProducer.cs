@@ -2,7 +2,7 @@
 
 namespace Infrastructure.IOOperations;
 
-public class BytesProducer : IBytesProducer
+public class BytesProducer<T> : IBytesProducer<T>
 {
     private readonly CancellationToken _cancellationToken;
     private readonly FileStream _stream;
@@ -19,12 +19,7 @@ public class BytesProducer : IBytesProducer
         _lock = new AsyncLock();
     }
 
-    public async Task<byte[]> WriteBytesToBufferAsync()
-    {
-        return await File.ReadAllBytesAsync(_filePath, _cancellationToken);
-    }
-
-    public async Task<DataChunkContainer> WriteBytesToBufferAsync(DataChunkContainer dataChunkPackage)
+    public async Task<DataChunkContainer<T>> WriteBytesToBufferAsync(DataChunkContainer<T> dataChunkPackage)
     {
         await Task.Yield();
         Result<(int Size, int ActuallyRead)> result;

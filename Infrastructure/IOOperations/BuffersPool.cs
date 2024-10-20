@@ -3,18 +3,18 @@ using Infrastructure.DataStructures;
 
 namespace Infrastructure.IOOperations;
 
-public sealed class BuffersPool
+public sealed class BuffersPool<T>
 {
     private readonly int _bufferSize = 1024 * 1024;//bytes
     private readonly int _poolSize = 4;
     private readonly ConcurrentStack<byte[]> _buffers = new();
     private readonly SemaphoreSlim _semaphore;
     private readonly int _recordChunksLength;
-    static readonly object _locker = new();
+    private readonly object _locker = new();
 
     //In the next iteration of the implementation, free buffers will be filled from a file in a background process.
     //Therefore, a ConcurrentStack with several of them has already been created.This is only an experiment, not an industrial development.
-    private readonly ConcurrentStack<ExpandableStorage<LogEntry>> _logEntriesStorages;
+    private readonly ConcurrentStack<ExpandableStorage<T>> _logEntriesStorages;
 
 
     public BuffersPool(int poolSize = 4)
@@ -26,7 +26,7 @@ public sealed class BuffersPool
         //much faster than the buffers for the row bytes. In any case,
         //their size is much smaller than the size of the bytes array,
         //so creating a few extra storages won't be much harm.
-        _logEntriesStorages = new ConcurrentStack<ExpandableStorage<LogEntry>>();
+        _logEntriesStorages = new ConcurrentStack<ExpandableStorage<T>>();
         Initialize();
     }
 
@@ -41,7 +41,7 @@ public sealed class BuffersPool
         }
     }
 
-    public async Task<DataChunkContainer> GetNextAsync()
+    public async Task<DataChunkContainer<T>> GetNextAsync()
     {
         await _semaphore.WaitAsync();
 
@@ -55,9 +55,9 @@ public sealed class BuffersPool
                 //The semaphore ensures that we should not be here.
                 throw new InvalidOperationException("Attempt to get more buffer instances than are in the pool.");
             }
-            ExpandableStorage<LogEntry> linesStorage = RentLinesStorage();
+            ExpandableStorage<T> linesStorage = RentLinesStorage();
 
-            return new DataChunkContainer(buffer!, linesStorage, false);
+            return new DataChunkContainer<T>(buffer!, linesStorage, false);
         }
         finally
         {
@@ -65,7 +65,7 @@ public sealed class BuffersPool
         }
     }
 
-    public void ReleaseContainer(DataChunkContainer container)
+    public void ReleaseContainer(DataChunkContainer<T> container)
     {
         bool lockTaken = false;
         try
@@ -82,12 +82,12 @@ public sealed class BuffersPool
         }
     }
 
-    private ExpandableStorage<LogEntry> RentLinesStorage()
+    private ExpandableStorage<T> RentLinesStorage()
     {
-        ExpandableStorage<LogEntry> storage;
+        ExpandableStorage<T> storage;
         while (!_logEntriesStorages.TryPop(out storage!))
         {
-            _logEntriesStorages.Push(new ExpandableStorage<LogEntry>(_recordChunksLength));
+            _logEntriesStorages.Push(new ExpandableStorage<T>(_recordChunksLength));
         }
         storage.Clear();
         return storage;

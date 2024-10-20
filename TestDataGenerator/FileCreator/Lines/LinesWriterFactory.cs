@@ -19,5 +19,5 @@ internal sealed class LinesWriterFactory
         return new LinesWriter(LastFilePath);
     }
 
-    public string LastFilePath { get; private set; }
+    public string? LastFilePath { get; private set; }
 }

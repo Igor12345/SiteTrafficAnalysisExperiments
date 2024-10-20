@@ -1,6 +1,7 @@
 ﻿using Infrastructure;
 using Infrastructure.IOOperations;
 using LogsAnalyzer.LogEntries;
+using LogEntry = LogsAnalyzer.LogEntries.LogEntry;
 
 namespace LogsAnalyzer.LogReader;
 
@@ -9,7 +10,7 @@ public class LogAsBytesReader : ILinesSourceAsync
     private readonly LogEntriesExtractor _logEntriesExtractor;
     private readonly FileReaderFactory _fileReaderFactory;
     private readonly string[] _files;
-    private readonly BuffersPool _buffersPool;
+    private readonly BuffersPool<LogEntry> _buffersPool;
 
     public LogAsBytesReader(FileReaderFactory fileReaderFactory, string[] files,
         LogEntriesExtractor logEntriesExtractor)
@@ -17,7 +18,7 @@ public class LogAsBytesReader : ILinesSourceAsync
         _fileReaderFactory = Guard.NotNull(fileReaderFactory);
         _files = Guard.NotNull(files);
         _logEntriesExtractor = Guard.NotNull(logEntriesExtractor);
-        _buffersPool = new BuffersPool();
+        _buffersPool = new BuffersPool<LogEntry>();
     }
 
     public async IAsyncEnumerator<LogEntry> GetAsyncEnumerator(
@@ -25,17 +26,17 @@ public class LogAsBytesReader : ILinesSourceAsync
     {
         foreach (string file in _files)
         {
-            await using var fileReader = _fileReaderFactory.CreateBytesProducer(file, cancellationToken);
+            await using var fileReader = _fileReaderFactory.CreateBytesProducer<LogEntry>(file, cancellationToken);
 
             byte[] restOfLastLine = [];
             while (true)
             {
-                DataChunkContainer? container = await _buffersPool.GetNextAsync();
+                DataChunkContainer<LogEntry>? container = await _buffersPool.GetNextAsync();
                 restOfLastLine.CopyTo(container.RowData, 0);
                 container.PrePopulatedBytesLength = restOfLastLine.Length;
 
                 //todo use different types, like PreContainer, PopulatedContainer to avoid accidental mistakes
-                DataChunkContainer populatedContainer = await fileReader.WriteBytesToBufferAsync(container);
+                DataChunkContainer<LogEntry> populatedContainer = await fileReader.WriteBytesToBufferAsync(container);
                 container = null;
 
                 var extractionResult =

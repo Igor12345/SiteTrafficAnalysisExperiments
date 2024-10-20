@@ -1,6 +1,6 @@
-﻿using Infrastructure;
-using Infrastructure.DataStructures;
+﻿using Infrastructure.DataStructures;
 using LogsAnalyzer.Exception;
+using LogEntry = LogsAnalyzer.LogEntries.LogEntry;
 
 namespace LogsAnalyzer.Analyzers
 {
