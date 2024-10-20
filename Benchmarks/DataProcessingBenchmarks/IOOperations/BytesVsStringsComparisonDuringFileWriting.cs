@@ -1,6 +1,6 @@
 ﻿using BenchmarkDotNet.Attributes;
-using Infrastructure.ByteOperations;
 using FileCreator.Lines;
+using Infrastructure.ByteOperations;
 
 namespace DataProcessingBenchmarks.IOOperations
 {
@@ -12,7 +12,7 @@ namespace DataProcessingBenchmarks.IOOperations
 
         private ulong[]? Numbers;
         private Dictionary<string, string>? _sourceFilePaths;
-        private string _currentDirectory;
+        private string? _currentDirectory;
 
         [GlobalSetup]
         public void GlobalSetup()
@@ -26,7 +26,7 @@ namespace DataProcessingBenchmarks.IOOperations
             Numbers = new ulong[N];
             for (int i = 0; i < N; i++)
             {
-                Numbers[i] = (ulong)Random.Shared.NextInt64(0, Int64.MaxValue);
+                Numbers[i] = (ulong)Random.Shared.NextInt64(0, long.MaxValue);
             }
         }
 
@@ -47,11 +47,11 @@ namespace DataProcessingBenchmarks.IOOperations
         public int WriteNumbersAsBytes()
         {
             int s = 0;
-            using LinesWriter linesWriter = new LinesWriter(_sourceFilePaths["ByBytes"]);
+            using LinesWriter linesWriter = new LinesWriter(_sourceFilePaths!["ByBytes"]);
             Span<byte> buffer = stackalloc byte[100];
             for (int i = 0; i < N; i++)
             {
-                int length = LongToBytesConverter.WriteULongToBytes(Numbers[i], buffer);
+                int length = LongToBytesConverter.WriteULongToBytes(Numbers![i], buffer);
                 s += length;
                 linesWriter.Write(buffer[..length]);
             }
@@ -65,12 +65,12 @@ namespace DataProcessingBenchmarks.IOOperations
         {
             int s = 0;
 
-            using FileStream fs = File.Create(_sourceFilePaths["ByStrings"]);
+            using FileStream fs = File.Create(_sourceFilePaths!["ByStrings"]);
             using TextWriter writer = new StreamWriter(fs);
-            
+
             for (int i = 0; i < N; i++)
             {
-                var str = Numbers[i].ToString("D");
+                var str = Numbers![i].ToString("D");
                 s += str.Length;
                 writer.WriteLine(str);
             }

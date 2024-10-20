@@ -6,7 +6,7 @@ using LogsAnalyzer.Analyzers;
 using LogsAnalyzer.LogEntries;
 using LogsAnalyzer.LogReader;
 
-namespace DataProcessingBenchmarks.IOOperations
+namespace DataProcessingBenchmarks.AnalyzersExecution
 {
     //Comparison of traffic analyzers when reading logs as a string or as a byte array
     [MemoryDiagnoser]
@@ -66,10 +66,9 @@ namespace DataProcessingBenchmarks.IOOperations
         [Benchmark]
         public async Task<int> AnalyseLogAsStrings()
         {
-            int s = 0;
             LogEntryParser parser = new LogEntryParser(";");
-            ILinesSourceAsync logsReader = new LogAsStringsReader(_fileReaderFactory, _sourceFilePaths, parser);
-            
+            ILinesSourceAsync logsReader = new LogAsStringsReader(_fileReaderFactory!, _sourceFilePaths!, parser);
+
             var loyalUsers = await _trafficAnalyzer.FindLoyalUsersAsync(logsReader);
             return loyalUsers.Count;
         }
@@ -78,10 +77,9 @@ namespace DataProcessingBenchmarks.IOOperations
         [Benchmark]
         public async Task<int> AnalyseLogAsBytes()
         {
-            int s = 0;
             LogEntryParser parser = new LogEntryParser(";");
-            ILinesSourceAsync logsReader = new LogAsBytesReader(_fileReaderFactory, _sourceFilePaths, new LogEntriesExtractor(parser));
-            
+            ILinesSourceAsync logsReader = new LogAsBytesReader(_fileReaderFactory!, _sourceFilePaths!, new LogEntriesExtractor(parser));
+
             var loyalUsers = await _trafficAnalyzer.FindLoyalUsersAsync(logsReader);
             return loyalUsers.Count;
         }
