@@ -1,5 +1,8 @@
 ﻿using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Configs;
 using ConsoleUI;
+using FileCreator.Lines;
+using FileCreator;
 using Infrastructure.IOOperations;
 using LogsAnalyzer.Analyzers;
 using LogsAnalyzer.LogEntries;
@@ -17,9 +20,34 @@ namespace DataProcessingBenchmarks.IOOperations
         public void GlobalSetup()
         {
             //todo
-            _currentDirectory = "";
+            _currentDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Logs");
+            Console.WriteLine($"<<------------------>>");
+            Console.WriteLine($"CurrentDirectory: {_currentDirectory}");
+            Console.WriteLine($"<<------------------>>");
+            if (!Directory.Exists(_currentDirectory))
+                Directory.CreateDirectory(_currentDirectory);
+
+            FileCreatorConfiguration config = new FileCreatorConfiguration()
+            {
+                OutputDirectory = _currentDirectory,
+                FileName = "log_##.txt",
+                LinesNumber = 1_000_000,
+                PagesNumber = 2000,
+                CustomersNumber = 50000,
+                IdLowBoundary = 10_000,
+                LogEveryThsLine = 100_000
+            };
+            LinesGenerator generator = new LinesGenerator(new LineCreator(config));
+
+            LinesWriterFactory linesWriterFactory = new LinesWriterFactory(config);
+            var logCreator = new LogCreator(config, generator, linesWriterFactory);
+
             _sourceFilePaths =
-                [Path.Combine(_currentDirectory, "Logs/log_1.txt"), Path.Combine(_currentDirectory, "Logs/log_2.txt")];
+                [Path.Combine(_currentDirectory, "log_1.txt"), Path.Combine(_currentDirectory, "log_2.txt")];
+            foreach (string file in _sourceFilePaths)
+            {
+                logCreator.CreateFile();
+            }
             _fileReaderFactory = new FileReaderFactory();
         }
 
@@ -30,14 +58,28 @@ namespace DataProcessingBenchmarks.IOOperations
 
         [GcServer(true)]
         [Benchmark]
-        public async Task<int> AnalyseLogs()
+        public async Task<int> AnalyseLogAsStrings()
         {
             int s = 0;
             LogEntryParser parser = new LogEntryParser(";");
-            ILinesSourceAsync logsReader = new LogsReader(_fileReaderFactory, _sourceFilePaths);
+            ILinesSourceAsync logsReader = new LogsReader(_fileReaderFactory, _sourceFilePaths, parser);
 
-            ITrafficAnalyzer trafficAnalyzer = new TrafficAnalyzerDependingOnDay(parser);
-            // ITrafficAnalyzer trafficAnalyzer = new TrafficAnalyzerRegardlessOfTheDay(parser, logsReader);
+            ITrafficAnalyzer trafficAnalyzer = new TrafficAnalyzerDependingOnDay();
+            // ITrafficAnalyzer trafficAnalyzer = new TrafficAnalyzerRegardlessOfTheDay();
+            var loyalUsers = await trafficAnalyzer.FindLoyalUsersAsync(logsReader);
+            return loyalUsers.Count;
+        }
+
+        [GcServer(true)]
+        [Benchmark]
+        public async Task<int> AnalyseLogAsBytes()
+        {
+            int s = 0;
+            LogEntryParser parser = new LogEntryParser(";");
+            ILinesSourceAsync logsReader = new LogsAsBytesReader(_fileReaderFactory, _sourceFilePaths, new LogEntriesExtractor(parser));
+
+            ITrafficAnalyzer trafficAnalyzer = new TrafficAnalyzerDependingOnDay();
+            // ITrafficAnalyzer trafficAnalyzer = new TrafficAnalyzerRegardlessOfTheDay();
             var loyalUsers = await trafficAnalyzer.FindLoyalUsersAsync(logsReader);
             return loyalUsers.Count;
         }

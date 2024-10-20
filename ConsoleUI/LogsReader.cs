@@ -1,21 +1,24 @@
 ﻿using Infrastructure;
 using Infrastructure.IOOperations;
 using LogsAnalyzer.Analyzers;
+using LogsAnalyzer.LogEntries;
 
 namespace ConsoleUI;
 
 public class LogsReader : ILinesSourceAsync
 {
+    private readonly ILogEntryParser _parser;
     private readonly FileReaderFactory _fileReaderFactory;
     private readonly string[] _files;
 
-    public LogsReader(FileReaderFactory fileReaderFactory, string[] files)
+    public LogsReader(FileReaderFactory fileReaderFactory, string[] files, ILogEntryParser parser)
     {
         _fileReaderFactory = Guard.NotNull(fileReaderFactory);
         _files = Guard.NotNull(files);
+        _parser = Guard.NotNull(parser);
     }
 
-    public async IAsyncEnumerator<string> GetAsyncEnumerator(CancellationToken cancellationToken = new())
+    public async IAsyncEnumerator<LogEntry> GetAsyncEnumerator(CancellationToken cancellationToken = new())
     {
         foreach (string file in _files)
         {
@@ -26,8 +29,22 @@ public class LogsReader : ILinesSourceAsync
                 var line = await fileReader.ReadLineAsync(cancellationToken);
                 if (line == null)
                     break;
-                yield return line;
+
+                var parsingResult = _parser.Parse(line);
+                if (!parsingResult.Success)
+                {
+                    HandleError(parsingResult.ErrorMessage);
+                }
+                else
+                {
+                    yield return parsingResult.Value;
+                }
             }
         }
+    }
+
+    private void HandleError(string errorMessage)
+    {
+        Console.WriteLine($"Error: {errorMessage}");
     }
 }

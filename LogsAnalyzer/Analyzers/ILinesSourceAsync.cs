@@ -1,5 +1,7 @@
-﻿namespace LogsAnalyzer.Analyzers;
+﻿using LogsAnalyzer.LogEntries;
 
-public interface ILinesSourceAsync : IAsyncEnumerable<string>
+namespace LogsAnalyzer.Analyzers;
+
+public interface ILinesSourceAsync : IAsyncEnumerable<LogEntry>
 {
 }

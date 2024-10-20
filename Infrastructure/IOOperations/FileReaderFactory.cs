@@ -10,4 +10,9 @@ public class FileReaderFactory
         var reader = new StreamReader(fs, Encoding.UTF8);
         return reader;
     }
+
+    public IBytesProducer CreateBytesProducer(string fileName, CancellationToken cancellationToken = new())
+    {
+        return new BytesProducer(fileName, cancellationToken);
+    }
 }

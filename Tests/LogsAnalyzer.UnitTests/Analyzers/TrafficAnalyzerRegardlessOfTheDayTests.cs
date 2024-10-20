@@ -8,10 +8,9 @@ namespace LogsAnalyzer.UnitTests.Analyzers
         [Test]
         [TestCaseSource(nameof(Logs), new object[] { 1 })]
         [TestCaseSource(nameof(Logs), new object[] { 2 })]
-        public async Task ShouldFindLoyalUsers((IAsyncEnumerable<string> logRecordsSource, int expectedLoyalUsers, ulong[] loyalUsers) td)
+        public async Task ShouldFindLoyalUsers((IAsyncEnumerable<LogEntry> logRecordsSource, int expectedLoyalUsers, ulong[] loyalUsers) td)
         {
-            LogEntryParser parser = new LogEntryParser(";");
-            TrafficAnalyzerRegardlessOfTheDay analyzer = new TrafficAnalyzerRegardlessOfTheDay(parser);
+            TrafficAnalyzerRegardlessOfTheDay analyzer = new TrafficAnalyzerRegardlessOfTheDay();
             
             var foundUsers = await analyzer.FindLoyalUsersAsync(td.logRecordsSource);
 
@@ -24,7 +23,7 @@ namespace LogsAnalyzer.UnitTests.Analyzers
             }
         }
 
-        public static IEnumerable<(IAsyncEnumerable<string>, int, ulong[])> Logs(int forDays)
+        public static IEnumerable<(IAsyncEnumerable<LogEntry>, int, ulong[])> Logs(int forDays)
         {
             if (forDays == 1)
             {
@@ -81,16 +80,17 @@ namespace LogsAnalyzer.UnitTests.Analyzers
             yield return $"some time;{accidentalUsers[1]};56";
         }
 
-        public static async IAsyncEnumerable<string> LogsSource(int forDays)
+        public static async IAsyncEnumerable<LogEntry> LogsSource(int forDays)
         {
+            LogEntryParser parser = new LogEntryParser(";");
             await foreach (string line in FirstDayLogsSource())
-                yield return line;
+                yield return parser.Parse(line).Value;
 
             if (forDays < 2)
                 yield break;
 
             await foreach (string line in SecondDayLogsSource())
-                yield return line;
+                yield return parser.Parse(line).Value;
         }
     }
 }

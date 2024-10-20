@@ -1,5 +1,4 @@
-﻿using Infrastructure;
-using LogsAnalyzer.LogEntries;
+﻿using LogsAnalyzer.LogEntries;
 
 namespace LogsAnalyzer.Analyzers
 {
@@ -11,35 +10,20 @@ namespace LogsAnalyzer.Analyzers
     /// </summary>
     public class TrafficAnalyzerRegardlessOfTheDay : ITrafficAnalyzer
     {
-        private readonly LogEntryParser _parser;
-
-        public TrafficAnalyzerRegardlessOfTheDay(LogEntryParser parser)
-        {
-            _parser = Guard.NotNull(parser);
-        }
-
-        public async Task<List<ulong>> FindLoyalUsersAsync(IAsyncEnumerable<string> linesSourceAsync)
+        public async Task<List<ulong>> FindLoyalUsersAsync(IAsyncEnumerable<LogEntry> logEntriesSourceAsync)
         {
             Dictionary<ulong, long> statistic = new Dictionary<ulong, long>();
             List<ulong> loyalUsers = new List<ulong>();
 
-            await foreach (string line in linesSourceAsync)
+            await foreach (LogEntry logEntry in logEntriesSourceAsync)
             {
-                var parsingResult = _parser.ParseShort(line);
-                if (parsingResult.IsError)
+                if (!statistic.TryAdd(logEntry.CustomerId, logEntry.PageId))
                 {
-                    HandleError(parsingResult.ErrorMessage);
-                    continue;
-                }
-
-                var (customerId, pageId) = parsingResult.Value;
-                if (!statistic.TryAdd(customerId, pageId))
-                {
-                    long prevPage = statistic[customerId];
-                    if (prevPage > 0 && prevPage != pageId)
+                    long prevPage = statistic[logEntry.CustomerId];
+                    if (prevPage > 0 && prevPage != logEntry.PageId)
                     {
-                        statistic[customerId] = -1;
-                        loyalUsers.Add(customerId);
+                        statistic[logEntry.CustomerId] = -1;
+                        loyalUsers.Add(logEntry.CustomerId);
                     }
                 }
             }

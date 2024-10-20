@@ -1,5 +1,4 @@
-﻿using Infrastructure;
-using LogsAnalyzer.DataStructures;
+﻿using LogsAnalyzer.DataStructures;
 using LogsAnalyzer.Exception;
 using LogsAnalyzer.LogEntries;
 
@@ -10,18 +9,11 @@ namespace LogsAnalyzer.Analyzers
     /// </summary>
     public class TrafficAnalyzerDependingOnDay : ITrafficAnalyzer
     {
-        // private readonly ILinesSourceAsync _linesSourceAsync;
-        private readonly LogEntryParser _parser;
         private int _currentEpoch;
         private int _logRecordsProcessed;
         DateTime _currentDate = DateTime.MinValue.Date;
-
-        public TrafficAnalyzerDependingOnDay(LogEntryParser parser)
-        {
-            _parser = Guard.NotNull(parser);
-        }
-
-        public async Task<List<ulong>> FindLoyalUsersAsync(IAsyncEnumerable<string> linesSourceAsync)
+        
+        public async Task<List<ulong>> FindLoyalUsersAsync(IAsyncEnumerable<LogEntry> logEntriesSourceAsync)
         {
             //An epoch means each separate time segment that should be processed separately from others.
             //In this case, each day is an epoch. If you need to divide users by weeks or vice versa by hours,
@@ -30,43 +22,35 @@ namespace LogsAnalyzer.Analyzers
             Dictionary<ulong, UserHistory> trafficHistory = new Dictionary<ulong, UserHistory>();
             ExpandableStorage<ulong> loyalUsers = new ExpandableStorage<ulong>(500); //i.e. in fact 512
 
-            await foreach (string line in linesSourceAsync)
+            await foreach (LogEntry logEntry in logEntriesSourceAsync)
             {
                 _logRecordsProcessed++;
 
-                var parsingResult = _parser.Parse(line);
-                if (parsingResult.IsError)
-                {
-                    HandleError(parsingResult.ErrorMessage);
-                    continue;
-                }
+                int currentEpoch = UpdateEpoch(logEntry.DateTime);
 
-                var (customerId, pageId, dateTime) = parsingResult.Value;
-                int currentEpoch = UpdateEpoch(dateTime);
-
-                if (!trafficHistory.TryGetValue(customerId, out _))
+                if (!trafficHistory.TryGetValue(logEntry.CustomerId, out _))
                 {
-                    trafficHistory.Add(customerId, new UserHistory(currentEpoch, true, false, [pageId]));
+                    trafficHistory.Add(logEntry.CustomerId, new UserHistory(currentEpoch, true, false, [logEntry.PageId]));
                 }
                 else
                 {
-                    var userHistory = trafficHistory[customerId];
+                    var userHistory = trafficHistory[logEntry.CustomerId];
                     if (userHistory.Processed)
                         continue;
                     if (userHistory.FirstEpoch && userHistory.CurrentEpoch == currentEpoch)
                     {
-                        userHistory.Pages!.Add(pageId);
+                        userHistory.Pages!.Add(logEntry.PageId);
                     }
                     else
                     {
-                        if (!userHistory.Pages!.Contains(pageId))
+                        if (!userHistory.Pages!.Contains(logEntry.PageId))
                         {
-                            trafficHistory[customerId] = new UserHistory(currentEpoch, false, true, null);
-                            loyalUsers.Add(customerId);
+                            trafficHistory[logEntry.CustomerId] = new UserHistory(currentEpoch, false, true, null);
+                            loyalUsers.Add(logEntry.CustomerId);
                             continue;
                         }
 
-                        trafficHistory[customerId] = userHistory with { CurrentEpoch = currentEpoch, FirstEpoch = false };
+                        trafficHistory[logEntry.CustomerId] = userHistory with { CurrentEpoch = currentEpoch, FirstEpoch = false };
                     }
                 }
             }
