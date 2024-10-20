@@ -9,8 +9,8 @@ internal sealed class FileCreatorConfiguration
     public int CustomersNumber { get; set; }
     public int IdLowBoundary { get; set; }
     
-    public long CustomersMaxId => IdLowBoundary + 10 * CustomersNumber;
-    public long PagesMaxId => IdLowBoundary + 10 * PagesNumber;
+    public long CustomersMaxId => IdLowBoundary + CustomersNumber;
+    public long PagesMaxId => IdLowBoundary + PagesNumber;
 
     public string OutputDirectory { get; set; }
 }
