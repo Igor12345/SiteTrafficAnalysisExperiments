@@ -1,6 +1,5 @@
 ﻿using Infrastructure;
 using Infrastructure.ByteOperations;
-using LogsAnalyzer.DataStructures;
 using System.Text;
 
 namespace LogsAnalyzer.LogEntries;
@@ -110,17 +109,6 @@ public sealed class LogEntryParser : ILogEntryParser
     {
         return new string(chars);
     }
-}
-
-public record DataChunkPackage(byte[] RowData, ExpandableStorage<LogEntry> ParsedRecords, int PackageNumber,
-    bool IsLastPackage)
-{
-    private static readonly DataChunkPackage _emptyPackage =
-        new(Array.Empty<byte>(), new ExpandableStorage<LogEntry>(0), -1, false);
-
-    public static DataChunkPackage Empty => _emptyPackage;
-    public int PrePopulatedBytesLength { get; init; }
-    public int WrittenBytesLength { get; init; }
 }
 
 public record struct ExtractionResult(bool Success, int LinesNumber, int StartRemainingBytes, string Message)

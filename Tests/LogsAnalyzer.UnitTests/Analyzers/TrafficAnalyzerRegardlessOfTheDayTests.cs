@@ -1,4 +1,5 @@
-﻿using LogsAnalyzer.Analyzers;
+﻿using Infrastructure;
+using LogsAnalyzer.Analyzers;
 using LogsAnalyzer.LogEntries;
 
 namespace LogsAnalyzer.UnitTests.Analyzers

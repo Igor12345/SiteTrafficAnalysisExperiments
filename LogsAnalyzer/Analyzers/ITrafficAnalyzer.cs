@@ -1,4 +1,4 @@
-﻿using LogsAnalyzer.LogEntries;
+﻿using Infrastructure;
 
 namespace LogsAnalyzer.Analyzers;
 

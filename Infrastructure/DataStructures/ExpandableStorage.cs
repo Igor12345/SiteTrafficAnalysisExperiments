@@ -1,7 +1,6 @@
-﻿using Infrastructure;
-using System.Buffers;
+﻿using System.Buffers;
 
-namespace LogsAnalyzer.DataStructures
+namespace Infrastructure.DataStructures
 {
     //not thread safe!
     public class ExpandableStorage<T> : IDisposable

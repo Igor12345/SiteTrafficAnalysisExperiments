@@ -1,5 +1,5 @@
-﻿using LogsAnalyzer.DataStructures;
-using LogsAnalyzer.LogEntries;
+﻿using Infrastructure;
+using Infrastructure.DataStructures;
 
 namespace LogsAnalyzer.Analyzers
 {

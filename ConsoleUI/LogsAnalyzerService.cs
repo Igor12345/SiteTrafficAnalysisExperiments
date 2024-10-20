@@ -32,8 +32,7 @@ internal class LogsAnalyzerService : IHostedService
         ILogEntryParser parser = new LogEntryParser(_configuration.LineDelimiter);
         ILinesSourceAsync logsReader = new LogAsStringsReader(_fileReaderFactory, files.Value, parser);
         ILinesSourceAsync logAsBytesReader = new LogAsBytesReader(_fileReaderFactory, files.Value, new LogEntriesExtractor(parser));
-
-
+        
         ITrafficAnalyzer trafficAnalyzer = new TrafficAnalyzerDependingOnDay();
         // ITrafficAnalyzer trafficAnalyzer = new TrafficAnalyzerRegardlessOfTheDay();
 

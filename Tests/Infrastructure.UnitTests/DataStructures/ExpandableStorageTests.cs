@@ -1,4 +1,4 @@
-﻿namespace LogsAnalyzer.UnitTests.DataStructures
+﻿namespace Infrastructure.UnitTests.DataStructures
 {
     internal class ExpandableStorageTests
     {

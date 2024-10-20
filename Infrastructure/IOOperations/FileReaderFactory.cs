@@ -12,8 +12,8 @@ public class FileReaderFactory
         return new LineReader(reader);
     }
 
-    public IBytesProducer CreateBytesProducer(string fileName, CancellationToken cancellationToken = new())
+    public IBytesProducer CreateBytesProducer(string fileName, int lastProcessedPackage = 0, CancellationToken cancellationToken = new())
     {
-        return new BytesProducer(fileName, cancellationToken);
+        return new BytesProducer(fileName, lastProcessedPackage, cancellationToken);
     }
 }

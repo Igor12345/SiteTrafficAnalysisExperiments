@@ -1,6 +1,6 @@
 ﻿using Infrastructure;
-using LogsAnalyzer.DataStructures;
 using System.Text;
+using Infrastructure.DataStructures;
 
 namespace LogsAnalyzer.LogEntries;
 
@@ -20,7 +20,7 @@ public sealed class LogEntriesExtractor
     }
 
     //this is hardcoded for UTF-8
-    public ExtractionResult ExtractRecords(ReadOnlySpan<byte> input, ExpandableStorage<LogEntry> records, int offset = 0)
+    public ExtractionResult ExtractRecords(ReadOnlySpan<byte> input, ExpandableStorage<LogEntry> records)
     {
         int lineIndex = 0;
         int endLine = 0;
