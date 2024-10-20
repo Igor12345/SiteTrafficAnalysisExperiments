@@ -42,19 +42,19 @@ namespace LogsAnalyzer.UnitTests.Analyzers
 
             ulong[] accidentalUsers = [12, 23, 55];
 
-            yield return $"some time;{loyalUser2};19";
-            yield return $"some time;{accidentalUsers[0]};45";
-            yield return $"some time;{accidentalUsers[1]};56";
-            yield return $"some time;{loyalUser2};19";
-            yield return $"some time;{accidentalUsers[0]};45";
-            yield return $"some time;{accidentalUsers[2]};72";
-            yield return $"some time;{accidentalUsers[0]};45";
-            yield return $"some time;{loyalUser1};45";
-            yield return $"some time;{loyalUser2};39";
-            yield return $"some time;{accidentalUsers[0]};45";
-            yield return $"some time;{accidentalUsers[2]};72";
-            yield return $"some time;{loyalUser1};9";
-            yield return $"some time;{accidentalUsers[1]};56";
+            yield return $"2024-10-19T19:15:23;{loyalUser2};19";
+            yield return $"2024-10-19T19:15:23;{accidentalUsers[0]};45";
+            yield return $"2024-10-19T19:15:23;{accidentalUsers[1]};56";
+            yield return $"2024-10-19T19:15:23;{loyalUser2};19";
+            yield return $"2024-10-19T19:15:23;{accidentalUsers[0]};45";
+            yield return $"2024-10-19T19:15:23;{accidentalUsers[2]};72";
+            yield return $"2024-10-19T19:15:23;{accidentalUsers[0]};45";
+            yield return $"2024-10-19T19:15:23;{loyalUser1};45";
+            yield return $"2024-10-19T19:15:23;{loyalUser2};39";
+            yield return $"2024-10-19T19:15:23;{accidentalUsers[0]};45";
+            yield return $"2024-10-19T19:15:23;{accidentalUsers[2]};72";
+            yield return $"2024-10-19T19:15:23;{loyalUser1};9";
+            yield return $"2024-10-19T19:15:23;{accidentalUsers[1]};56";
         }
 
         public static async IAsyncEnumerable<string> SecondDayLogsSource()
@@ -66,18 +66,18 @@ namespace LogsAnalyzer.UnitTests.Analyzers
 
             ulong[] accidentalUsers = [12, 23];
 
-            yield return $"some time;{accidentalUsers[0]};45";
-            yield return $"some time;{accidentalUsers[1]};56";
-            yield return $"some time;{accidentalUsers[0]};45";
-            yield return $"some time;{anotherLoyalUser};27";
-            yield return $"some time;{accidentalUsers[0]};45";
-            yield return $"some time;{loyalUser1};9";
-            yield return $"some time;{accidentalUsers[0]};45";
+            yield return $"2024-10-19T19:15:23;{accidentalUsers[0]};45";
+            yield return $"2024-10-19T19:15:23;{accidentalUsers[1]};56";
+            yield return $"2024-10-19T19:15:23;{accidentalUsers[0]};45";
+            yield return $"2024-10-19T19:15:23;{anotherLoyalUser};27";
+            yield return $"2024-10-19T19:15:23;{accidentalUsers[0]};45";
+            yield return $"2024-10-19T19:15:23;{loyalUser1};9";
+            yield return $"2024-10-19T19:15:23;{accidentalUsers[0]};45";
 
             //different page for the anotherLoyalUser
-            yield return $"some time;{anotherLoyalUser};27";
-            yield return $"some time;{loyalUser1};9";
-            yield return $"some time;{accidentalUsers[1]};56";
+            yield return $"2024-10-19T19:15:23;{anotherLoyalUser};27";
+            yield return $"2024-10-19T19:15:23;{loyalUser1};9";
+            yield return $"2024-10-19T19:15:23;{accidentalUsers[1]};56";
         }
 
         public static async IAsyncEnumerable<LogEntry> LogsSource(int forDays)

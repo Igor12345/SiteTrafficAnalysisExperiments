@@ -1,5 +1,4 @@
 ﻿using LogsAnalyzer.Analyzers;
-using LogsAnalyzer.Exception;
 using LogsAnalyzer.LogEntries;
 
 namespace LogsAnalyzer.UnitTests.Analyzers;
@@ -7,19 +6,7 @@ namespace LogsAnalyzer.UnitTests.Analyzers;
 internal class TrafficAnalyzerDependingOnDayTests
 {
     //todo add tests that check the analyzer's tolerance for individual invalid entries 
-
-    [Test]
-    [TestCaseSource(nameof(Logs), new object[] { 1 })]
-    public async Task ShouldThrowExceptionWhenWholeLogsAreIncorrect(
-        (IAsyncEnumerable<LogEntry> logRecordsSource, int expectedLoyalUsers, ulong[] loyalUsers) td)
-    {
-        //using the wrong delimiter, so the parser can't parse this log
-        LogEntryParser parser = new LogEntryParser("_");
-        ITrafficAnalyzer analyzer = new TrafficAnalyzerDependingOnDay();
-
-        Assert.ThrowsAsync<IncorrectLogRecordsException>(() => analyzer.FindLoyalUsersAsync(td.logRecordsSource));
-    }
-
+    
     [Test]
     [TestCaseSource(nameof(Logs), new object[] { 1 })]
     [TestCaseSource(nameof(Logs), new object[] { 2 })]

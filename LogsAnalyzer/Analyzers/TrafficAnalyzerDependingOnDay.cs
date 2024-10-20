@@ -55,10 +55,6 @@ namespace LogsAnalyzer.Analyzers
                 }
             }
 
-            //Controversial decision, not for real application
-            if (_logRecordsProcessed > 0 && !trafficHistory.Any())
-                throw new IncorrectLogRecordsException();
-
             int loyalUsersNumber = loyalUsers.Count;
             ulong[] loyalUsersResult = new ulong[loyalUsersNumber];
             loyalUsers.CopyTo(loyalUsersResult, loyalUsersNumber);
