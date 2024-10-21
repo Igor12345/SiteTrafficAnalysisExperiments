@@ -1,6 +1,6 @@
 namespace Infrastructure.UnitTests.IOOperations;
 
-public class BytesProducerTests
+public class FileToBytesReaderTests
 {
 
 }

@@ -2,7 +2,7 @@
 
 namespace Infrastructure.IOOperations;
 
-public class BytesProducer<T> : IBytesProducer<T>
+public class FileToBytesReader<T> : IBytesProducer<T>
 {
     private readonly CancellationToken _cancellationToken;
     private readonly FileStream _stream;
@@ -10,7 +10,7 @@ public class BytesProducer<T> : IBytesProducer<T>
     private readonly int _bufferSize = 4096;
     private readonly AsyncLock _lock;
 
-    public BytesProducer(string fullFileName, CancellationToken cancellationToken = new())
+    public FileToBytesReader(string fullFileName, CancellationToken cancellationToken = new())
     {
         _cancellationToken = cancellationToken;
         _filePath = Guard.FileExist(fullFileName);
@@ -21,9 +21,9 @@ public class BytesProducer<T> : IBytesProducer<T>
 
     public async Task<DataChunkContainer<T>> WriteBytesToBufferAsync(DataChunkContainer<T> dataChunkPackage)
     {
-        await Task.Yield();
         Result<(int Size, int ActuallyRead)> result;
 
+        //There are plans to use it from different threads
         using (var _ = await _lock.LockAsync())
         {
             result = await ReadBytesAsync(dataChunkPackage.RowData, dataChunkPackage.PrePopulatedBytesLength,
@@ -46,7 +46,7 @@ public class BytesProducer<T> : IBytesProducer<T>
 
     public async ValueTask DisposeAsync()
     {
-        if (_stream != null) await _stream.DisposeAsync();
+       await _stream.DisposeAsync();
     }
 
     private async Task<Result<(int Size, int ActuallyRead)>> ReadBytesAsync(byte[] buffer, int offset,
