@@ -6,17 +6,20 @@ namespace FileCreator.Lines;
 internal interface ILineCreator
 {
     int WriteLine(Span<byte> buffer);
+    void UpdateDate();
 }
 
 internal class LineCreator : ILineCreator
 {
     private readonly FileCreatorConfiguration _config;
     private readonly byte[] _eol;
-    private readonly byte[] _endlessTime;
-    private readonly int _endlessTimeLength;
+    private byte[] _endlessTime;
+    private int _endlessTimeLength;
     private readonly int _eolLength;
     private readonly byte[] _delimiter;
     private readonly int _delimiterLength;
+    private DateTime _currentDateTime;
+
     public const string Delimiter = ";";
 
     public LineCreator(FileCreatorConfiguration config)
@@ -27,9 +30,9 @@ internal class LineCreator : ILineCreator
         _eolLength = _eol.Length;
         _delimiter = Encoding.UTF8.GetBytes(Delimiter);
         _delimiterLength = _delimiter.Length;
-        var now = DateTime.UtcNow.ToString("s");
-        _endlessTime = Encoding.UTF8.GetBytes(now);
-        _endlessTimeLength = _endlessTime.Length;
+        _currentDateTime = DateTime.UtcNow.AddDays(-7);
+        
+        UpdateDate();
     }
 
     public int WriteLine(Span<byte> buffer)
@@ -42,6 +45,13 @@ internal class LineCreator : ILineCreator
         position = WriteEol(buffer, position);
 
         return position;
+    }
+
+    public void UpdateDate()
+    {
+        _currentDateTime = _currentDateTime.AddDays(1);
+        _endlessTime = Encoding.UTF8.GetBytes(_currentDateTime.ToString("s"));
+        _endlessTimeLength = _endlessTime.Length;
     }
 
     private int WriteTime(Span<byte> buffer)

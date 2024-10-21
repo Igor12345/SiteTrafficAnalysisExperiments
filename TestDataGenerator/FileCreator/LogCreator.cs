@@ -31,6 +31,7 @@ internal sealed class LogCreator
         try
         {
             buffer = ArrayPool<byte>.Shared.Rent(MaxLineLength);
+            _generator.UpdateDate();
             using LinesWriter linesWriter = _linesWriterFactory.Create();
             foreach (int lineLength in _generator.Generate(buffer.AsMemory()))
             {

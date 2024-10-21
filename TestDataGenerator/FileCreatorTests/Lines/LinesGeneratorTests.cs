@@ -47,5 +47,9 @@ internal class LinesGeneratorTests
             Called++;
             return _results[Called - 1];
         }
+
+        public void UpdateDate()
+        {
+        }
     }
 }

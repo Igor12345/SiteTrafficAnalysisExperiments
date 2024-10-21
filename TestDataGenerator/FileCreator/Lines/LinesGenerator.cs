@@ -19,4 +19,9 @@ internal sealed class LinesGenerator
             yield return lineLength;
         }
     }
+
+    public void UpdateDate()
+    {
+        _lineCreator.UpdateDate();
+    }
 }
