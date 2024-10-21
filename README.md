@@ -1,4 +1,4 @@
-This solution is not a production application, nor even close to one!!! It has been created solely for some experiments with reading and processing medium and potentially large datasets, as well as for playing with various algorithms and data structures. The application will evolve over time.
+This solution is not a production-ready application, nor even close to one!!! It has been created solely for some experiments with reading and processing medium and potentially large datasets, as well as for playing with various algorithms and data structures. It is a proof of concept with very fragile and over-engineered code. The application will evolve over time.
 
 Since the first version was developed somewhat hastily, it is quite possible that it contains bugs that will be fixed later. It requires refactoring, and its test coverage is also critically low.
 
