@@ -9,6 +9,7 @@ namespace Infrastructure
         {
             return value ?? throw new ArgumentNullException(paramName);
         }
+
         public static string NotNullOrEmpty(string? value, [CallerArgumentExpression("value")] string? paramName = null)
         {
             return value ?? throw new ArgumentNullException(paramName);

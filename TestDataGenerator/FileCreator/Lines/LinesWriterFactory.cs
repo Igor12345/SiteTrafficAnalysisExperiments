@@ -12,12 +12,12 @@ internal sealed class LinesWriterFactory
         _config = Guard.NotNull(config);
     }
 
+    public string? LastFilePath { get; private set; }
+
     public LinesWriter Create()
     {
         string fileName = _config.FileName.Replace("##", $"{++_lastFileNumber}");
         LastFilePath = Path.Combine(_config.OutputDirectory, fileName);
         return new LinesWriter(LastFilePath);
     }
-
-    public string? LastFilePath { get; private set; }
 }

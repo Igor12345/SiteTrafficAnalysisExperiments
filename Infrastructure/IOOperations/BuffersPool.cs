@@ -15,8 +15,7 @@ public sealed class BuffersPool<T>
     //In the next iteration of the implementation, free buffers will be filled from a file in a background process.
     //Therefore, a ConcurrentStack with several of them has already been created.This is only an experiment, not an industrial development.
     private readonly ConcurrentStack<ExpandableStorage<T>> _logEntriesStorages;
-
-
+    
     public BuffersPool(int poolSize = 4)
     {
         _poolSize = Guard.Positive(poolSize);
@@ -28,17 +27,6 @@ public sealed class BuffersPool<T>
         //so creating a few extra storages won't be much harm.
         _logEntriesStorages = new ConcurrentStack<ExpandableStorage<T>>();
         Initialize();
-    }
-
-    private void Initialize()
-    {
-        //creating them all at the same time so that they are next to each other in LOH
-        //another strategy can be creating them on demand in the method GetNextAsync 
-        for (int i = 0; i < _poolSize; i++)
-        {
-            byte[] buffer = new byte[_bufferSize];
-            _buffers.Push(buffer);
-        }
     }
 
     public async Task<DataChunkContainer<T>> GetNextAsync()
@@ -79,6 +67,17 @@ public sealed class BuffersPool<T>
         finally
         {
             if (lockTaken) Monitor.Exit(_locker);
+        }
+    }
+
+    private void Initialize()
+    {
+        //creating them all at the same time so that they are next to each other in LOH
+        //another strategy can be creating them on demand in the method GetNextAsync 
+        for (int i = 0; i < _poolSize; i++)
+        {
+            byte[] buffer = new byte[_bufferSize];
+            _buffers.Push(buffer);
         }
     }
 

@@ -8,8 +8,8 @@ namespace LogsAnalyzer.Analyzers
     /// </summary>
     public class TrafficAnalyzerDependingOnDay : ITrafficAnalyzer
     {
+        private const int poolChunkSize = 500;
         private int _currentEpoch;
-        private int _logRecordsProcessed;
         DateTime _currentDate = DateTime.MinValue.Date;
         
         public async Task<List<ulong>> FindLoyalUsersAsync(IAsyncEnumerable<LogEntry> logEntriesSourceAsync)
@@ -19,12 +19,10 @@ namespace LogsAnalyzer.Analyzers
             //then the epoch will be a week or an hour, respectively.
             //For simplicity, the epoch is determined by files, but in general, it is determined by timestamps.
             Dictionary<ulong, UserHistory> trafficHistory = new Dictionary<ulong, UserHistory>();
-            ExpandableStorage<ulong> loyalUsers = new ExpandableStorage<ulong>(500); //i.e. in fact 512
+            ExpandableStorage<ulong> loyalUsers = new ExpandableStorage<ulong>(poolChunkSize); //i.e. in fact 512
 
             await foreach (LogEntry logEntry in logEntriesSourceAsync)
             {
-                _logRecordsProcessed++;
-
                 int currentEpoch = UpdateEpoch(logEntry.DateTime);
 
                 if (!trafficHistory.TryGetValue(logEntry.CustomerId, out _))
@@ -70,12 +68,6 @@ namespace LogsAnalyzer.Analyzers
                 return ++_currentEpoch;
             }
             return _currentEpoch;
-        }
-
-        private void HandleError(string errorMessage)
-        {
-            //todo
-            Console.WriteLine(errorMessage);
         }
 
         private record struct UserHistory(int CurrentEpoch, bool FirstEpoch, bool Processed, HashSet<uint>? Pages);

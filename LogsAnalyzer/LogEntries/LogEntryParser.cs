@@ -10,6 +10,8 @@ public sealed class LogEntryParser : ILogEntryParser
     private readonly byte _delimiterByte;
     private const int MaxNumberLength = 100;
 
+    private delegate bool TryParse<T>(ReadOnlySpan<char> chars, out T result);
+
     public LogEntryParser(string delimiter)
     {
         _delimiter = Guard.NotNullOrEmpty(delimiter);
@@ -73,8 +75,6 @@ public sealed class LogEntryParser : ILogEntryParser
             timeMarkResult.Value.Item1));
     }
 
-    private delegate bool TryParse<T>(ReadOnlySpan<char> chars, out T result);
-
     private Result<(T, int)> LookingForPart<T>(ReadOnlySpan<byte> lineSpan, TryParse<T> tryParse, int startFrom,
         string errorMessagePrefix)
     {
@@ -109,12 +109,4 @@ public sealed class LogEntryParser : ILogEntryParser
     {
         return new string(chars);
     }
-}
-
-public record struct ExtractionResult(bool Success, int LinesNumber, int StartRemainingBytes, string Message)
-{
-    public static ExtractionResult Ok(int linesNumber, int startRemainingBytes) =>
-        new(true, linesNumber, startRemainingBytes, "");
-
-    public static ExtractionResult Error(string message) => new(false, -1, -1, message);
 }

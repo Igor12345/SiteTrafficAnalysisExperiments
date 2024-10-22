@@ -36,11 +36,5 @@ namespace LogsAnalyzer.Analyzers
             //todo update interface
             return [.. loyalUsersResult];
         }
-
-        private void HandleError(string errorMessage)
-        {
-            //todo
-            Console.WriteLine(errorMessage);
-        }
     }
 }

@@ -14,6 +14,6 @@ public class FileReaderFactory
 
     public IBytesProducer<T> CreateBytesProducer<T>(string fileName, CancellationToken cancellationToken = new())
     {
-        return new FileToBytesReader<T>(fileName, cancellationToken);
+        return FileToBytesReader<T>.Create(fileName, cancellationToken);
     }
 }

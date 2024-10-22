@@ -7,11 +7,12 @@ public interface IResultsSaver
     Task<Result<bool>> SaveUserIdsAsync(IEnumerable<ulong> users);
 }
 
-public class ResultsSaver: IResultsSaver
+public sealed class ResultsSaver: IResultsSaver
 {
     public Task<Result<bool>> SaveUserIdsAsync(IEnumerable<ulong> users)
     {
         var usersToDisplay = 10;
+        // ReSharper disable once PossibleMultipleEnumeration
         var numberOfUsers = users.Count();
         var local = users.Take(usersToDisplay).ToArray();
         Console.WriteLine($"There are {numberOfUsers} loyal users");

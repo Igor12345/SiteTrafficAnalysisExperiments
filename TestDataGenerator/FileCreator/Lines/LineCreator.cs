@@ -9,8 +9,10 @@ internal interface ILineCreator
     void UpdateDate();
 }
 
-internal class LineCreator : ILineCreator
+internal sealed class LineCreator : ILineCreator
 {
+    public const string Delimiter = ";";
+
     private readonly FileCreatorConfiguration _config;
     private readonly byte[] _eol;
     private byte[] _endlessTime;
@@ -19,8 +21,6 @@ internal class LineCreator : ILineCreator
     private readonly byte[] _delimiter;
     private readonly int _delimiterLength;
     private DateTime _currentDateTime;
-
-    public const string Delimiter = ";";
 
     public LineCreator(FileCreatorConfiguration config)
     {

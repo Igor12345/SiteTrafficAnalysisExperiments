@@ -4,12 +4,10 @@
     //There is an "official" implementation: System.Collections.Generic.PriorityQueue
     //but in this case it was easier to use custom
     //Algorithms (4th Edition) by Robert Sedgewick, Kevin Wayne
-    public class IndexPriorityQueue<T, TC> where TC : IComparer<T>
+    public sealed class IndexPriorityQueue<T, TC> where TC : IComparer<T>
     {
         private readonly TC _comparer;
-
         private readonly int _capacity;
-
         private readonly (T, int)[] _items;
         private int _currentSize = -1;
 

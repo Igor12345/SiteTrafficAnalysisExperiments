@@ -3,7 +3,7 @@
 namespace Infrastructure.DataStructures
 {
     //not thread safe!
-    public class ExpandableStorage<T> : IDisposable
+    public sealed class ExpandableStorage<T> : IDisposable
     {
         private int _chunkSize;
         private readonly int _minChunkSize;
@@ -18,15 +18,6 @@ namespace Infrastructure.DataStructures
         {
             _minChunkSize = Guard.Positive(chunkSize);
             _buffers = new List<T[]>();
-        }
-
-        private void RentSpace()
-        {
-            T[] array = ArrayPool<T>.Shared.Rent(_minChunkSize);
-            _chunkSize = array.Length;
-            Interlocked.Increment(ref _lastBuffer);
-            _buffers.Add(array);
-            _currentIndex = 0;
         }
 
         public T this[long i]
@@ -44,6 +35,8 @@ namespace Infrastructure.DataStructures
             }
         }
 
+        public int Count => _itemsNumber;
+
         public void CopyTo(T[] destination, int length)
         {
             for (int i = 0; i <= _lastBuffer; i++)
@@ -56,8 +49,6 @@ namespace Infrastructure.DataStructures
                     break;
             }
         }
-
-        public int Count => _itemsNumber;
 
         public void Add(T item)
         {
@@ -82,6 +73,15 @@ namespace Infrastructure.DataStructures
             _lastBuffer = -1;
             _currentIndex = 0;
             _itemsNumber = 0;
+        }
+
+        private void RentSpace()
+        {
+            T[] array = ArrayPool<T>.Shared.Rent(_minChunkSize);
+            _chunkSize = array.Length;
+            Interlocked.Increment(ref _lastBuffer);
+            _buffers.Add(array);
+            _currentIndex = 0;
         }
     }
 }

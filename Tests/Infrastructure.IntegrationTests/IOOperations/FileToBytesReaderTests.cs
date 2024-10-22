@@ -57,7 +57,7 @@ public class FileToBytesReaderTests
 
     public async Task<int> ReadAllBytesFromFile(string file)
     {
-        await using IBytesProducer<char> fileReader = new FileToBytesReader<char>(file);
+        await using IBytesProducer<char> fileReader = FileToBytesReader<char>.Create(file);
         byte[] buffer = new byte[20];
         DataChunkContainer<char> inputContainer =
             new DataChunkContainer<char>(buffer, ExpandableStorage<char>.Empty, false);

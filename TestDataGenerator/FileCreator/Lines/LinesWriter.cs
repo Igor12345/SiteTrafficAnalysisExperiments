@@ -11,7 +11,7 @@ internal sealed class LinesWriter : IDisposable
 
     public void Write(Span<byte> buffer)
     {
-        //let's propagate exception. It looks like there is nothing that we can di in this case.
+        //let's propagate the exception. It looks like there is nothing that we can do about this.
         _fileStream.Write(buffer);
     }
 

@@ -7,12 +7,12 @@ namespace FileCreator;
 
 internal sealed class LogCreator
 {
+    private const int MaxLineLength = 100;
+
     private readonly ILogger _logger;
     private readonly LinesGenerator _generator;
     private readonly FileCreatorConfiguration _config;
     private readonly LinesWriterFactory _linesWriterFactory;
-
-    private const int MaxLineLength = 100;
 
     public LogCreator(FileCreatorConfiguration config, LinesGenerator generator,
         LinesWriterFactory linesWriterFactory, ILogger<CreatingFileService>? logger = null)
@@ -54,8 +54,7 @@ internal sealed class LogCreator
         {
             if (buffer != null) ArrayPool<byte>.Shared.Return(buffer);
         }
-
-
+        
         _logger.LogInformation("All lines created: {lines}.", linesCount);
         _logger.LogInformation($"The file: {_linesWriterFactory.LastFilePath}");
     }

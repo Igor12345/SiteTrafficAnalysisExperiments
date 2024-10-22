@@ -6,15 +6,19 @@ public class FileToBytesReader<T> : IBytesProducer<T>
 {
     private readonly CancellationToken _cancellationToken;
     private readonly FileStream _stream;
-    private readonly string _filePath;
     private readonly int _bufferSize = 4096;
     private readonly AsyncLock _lock;
 
-    public FileToBytesReader(string fullFileName, CancellationToken cancellationToken = new())
+    public static FileToBytesReader<T> Create(string fullFileName, CancellationToken cancellationToken = new())
+    {
+        _ = Guard.FileExist(fullFileName);
+        return new FileToBytesReader<T>(fullFileName, cancellationToken);
+    }
+
+    private FileToBytesReader(string fullFileName, CancellationToken cancellationToken = new())
     {
         _cancellationToken = cancellationToken;
-        _filePath = Guard.FileExist(fullFileName);
-        _stream = new FileStream(_filePath, FileMode.Open, FileAccess.Read, FileShare.None,
+        _stream = new FileStream(fullFileName, FileMode.Open, FileAccess.Read, FileShare.None,
             bufferSize: _bufferSize, useAsync: true);
         _lock = new AsyncLock();
     }

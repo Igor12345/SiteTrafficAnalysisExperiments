@@ -3,6 +3,7 @@
 internal sealed class FileCreatorConfiguration
 {
     public string FileName { get; set; }
+    public string OutputDirectory { get; set; }
     public int LogEveryThsLine { get; set; }
     public ulong LinesNumber { get; set; }
     public long PagesNumber { get; set; }
@@ -11,6 +12,4 @@ internal sealed class FileCreatorConfiguration
     
     public long CustomersMaxId => IdLowBoundary + CustomersNumber;
     public long PagesMaxId => IdLowBoundary + PagesNumber;
-
-    public string OutputDirectory { get; set; }
 }
