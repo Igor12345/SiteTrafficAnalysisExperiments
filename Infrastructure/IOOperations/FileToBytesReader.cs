@@ -1,7 +1,12 @@
 ﻿using Infrastructure.Concurrency;
+using System;
 
 namespace Infrastructure.IOOperations;
 
+//There is Microsoft.IO.RecyclableMemoryStream (https://github.com/Microsoft/Microsoft.IO.RecyclableMemoryStream) and possibly a bunch of other options.
+//This implementation was mainly done for fun and some experiments.
+//See also Pro .NET Memory Management, by Konrad Kokosa. pp.466: Creating Streams - Use RecyclableMemoryStream
+//Writing High-Performance .NET Code 2nd Edition, by Ben Watson (Author)
 public class FileToBytesReader<T> : IBytesProducer<T>
 {
     private readonly CancellationToken _cancellationToken;
