@@ -1,7 +1,7 @@
 ﻿using System.Collections.Concurrent;
-using Infrastructure.DataStructures;
+using Infrastructure.IOOperations;
 
-namespace Infrastructure.IOOperations;
+namespace Infrastructure.DataStructures;
 
 public sealed class BuffersPool<T>
 {
@@ -15,7 +15,7 @@ public sealed class BuffersPool<T>
     //In the next iteration of the implementation, free buffers will be filled from a file in a background process.
     //Therefore, a ConcurrentStack with several of them has already been created.This is only an experiment, not an industrial development.
     private readonly ConcurrentStack<ExpandableStorage<T>> _logEntriesStorages;
-    
+
     public BuffersPool(int poolSize = 4)
     {
         _poolSize = Guard.Positive(poolSize);

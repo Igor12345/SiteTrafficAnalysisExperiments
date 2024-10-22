@@ -1,4 +1,5 @@
 ﻿using Infrastructure;
+using Infrastructure.DataStructures;
 using Infrastructure.IOOperations;
 using LogsAnalyzer.LogEntries;
 using Microsoft.Extensions.Logging;
