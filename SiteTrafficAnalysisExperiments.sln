@@ -3,29 +3,31 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35327.3
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleUI", "ConsoleUI\ConsoleUI.csproj", "{E8DC0B82-E3C8-4255-8A26-3B35136FEF04}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleUI", "ConsoleUI\ConsoleUI.csproj", "{E8DC0B82-E3C8-4255-8A26-3B35136FEF04}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestDataGenerator", "TestDataGenerator", "{BEB4BA9B-C6E1-4BC9-AD50-2845057ED2F1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileCreator", "TestDataGenerator\FileCreator\FileCreator.csproj", "{A8061A0C-DCF6-4063-B5CD-71C15ACF03E1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FileCreator", "TestDataGenerator\FileCreator\FileCreator.csproj", "{A8061A0C-DCF6-4063-B5CD-71C15ACF03E1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileCreatorTests", "TestDataGenerator\FileCreatorTests\FileCreatorTests.csproj", "{2B3DAE30-349A-47F5-B62E-818513B1AF06}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FileCreatorTests", "TestDataGenerator\FileCreatorTests\FileCreatorTests.csproj", "{2B3DAE30-349A-47F5-B62E-818513B1AF06}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{6B052922-8AFD-42DC-9478-AD2FD7F56EA3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Benchmarks", "Benchmarks", "{D1B66847-87CD-4BD7-9EF9-4DA3DEA17E17}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "Infrastructure\Infrastructure.csproj", "{B44A94CE-60B5-4848-BFDD-3B8765A518AD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure", "Infrastructure\Infrastructure.csproj", "{B44A94CE-60B5-4848-BFDD-3B8765A518AD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogsAnalyzer", "LogsAnalyzer\LogsAnalyzer.csproj", "{89D448AC-3A41-4A13-85AD-F7CB51B6A221}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LogsAnalyzer", "LogsAnalyzer\LogsAnalyzer.csproj", "{89D448AC-3A41-4A13-85AD-F7CB51B6A221}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LogsAnalyzer.UnitTests", "Tests\LogsAnalyzer.UnitTests\LogsAnalyzer.UnitTests.csproj", "{79DCE8E5-39D8-45B4-B584-198D4FE00C50}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LogsAnalyzer.UnitTests", "Tests\LogsAnalyzer.UnitTests\LogsAnalyzer.UnitTests.csproj", "{79DCE8E5-39D8-45B4-B584-198D4FE00C50}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataProcessingBenchmarks", "Benchmarks\DataProcessingBenchmarks\DataProcessingBenchmarks.csproj", "{71594C6F-52C1-4166-B120-C168EC614D19}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataProcessingBenchmarks", "Benchmarks\DataProcessingBenchmarks\DataProcessingBenchmarks.csproj", "{71594C6F-52C1-4166-B120-C168EC614D19}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure.UnitTests", "Tests\Infrastructure.UnitTests\Infrastructure.UnitTests.csproj", "{C39EE68C-4ED4-48C3-967D-3B36C28C2989}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure.UnitTests", "Tests\Infrastructure.UnitTests\Infrastructure.UnitTests.csproj", "{C39EE68C-4ED4-48C3-967D-3B36C28C2989}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure.IntegrationTests", "Tests\Infrastructure.IntegrationTests\Infrastructure.IntegrationTests.csproj", "{70016FB7-39B3-40EB-8915-D1EDBC302376}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure.IntegrationTests", "Tests\Infrastructure.IntegrationTests\Infrastructure.IntegrationTests.csproj", "{70016FB7-39B3-40EB-8915-D1EDBC302376}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RuntimeStatistic", "RuntimeStatistic\RuntimeStatistic.csproj", "{534599C0-A235-4776-B3F9-48D524824988}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -69,6 +71,10 @@ Global
 		{70016FB7-39B3-40EB-8915-D1EDBC302376}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{70016FB7-39B3-40EB-8915-D1EDBC302376}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{70016FB7-39B3-40EB-8915-D1EDBC302376}.Release|Any CPU.Build.0 = Release|Any CPU
+		{534599C0-A235-4776-B3F9-48D524824988}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{534599C0-A235-4776-B3F9-48D524824988}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{534599C0-A235-4776-B3F9-48D524824988}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{534599C0-A235-4776-B3F9-48D524824988}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
