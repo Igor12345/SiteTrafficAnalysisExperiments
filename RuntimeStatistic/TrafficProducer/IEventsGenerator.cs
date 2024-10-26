@@ -9,9 +9,7 @@ internal sealed class SiteVisitsGenerator : IEventsGenerator<(string dateTime, u
 {
    private readonly TimeProvider _timeProvider;
    private readonly ulong _userIdMin;
-   private readonly uint _usersNumber;
    private readonly uint _pageIdMin;
-   private readonly uint _pagesNumber;
    private readonly ulong _userIdMax;
    private readonly uint _pagesIdMax;
 

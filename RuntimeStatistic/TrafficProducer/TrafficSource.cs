@@ -1,29 +1,32 @@
-﻿using System.Threading.Channels;
+﻿using System.Reactive.Disposables;
+using System.Threading.Channels;
 
 namespace RuntimeStatistic.TrafficProducer
 {
    public sealed class TrafficSource<T>
    {
-      private readonly IEventsGenerator<T> _generator;
+      private readonly EventSourceUsingRx<T> _eventSource;
       private readonly ChannelWriter<T> _writer;
 
-
-      public TrafficSource(IEventsGenerator<T> generator, Channel<T> channel)
+      public TrafficSource(EventSourceUsingRx<T> eventSource, Channel<T> channel)
       {
-         _generator = generator;
+         _eventSource = eventSource ?? throw new ArgumentNullException(nameof(eventSource));
          _writer = channel.Writer;
       }
-      public async Task StartGenerationAsync(CancellationToken cancellationToken)
-      {
-         PeriodicTimer timer = new PeriodicTimer(TimeSpan.FromMilliseconds(100));
 
-         while (await timer.WaitForNextTickAsync(cancellationToken))
-         {
-            T eventRecord = _generator.Next();
-            if (await _writer.WaitToWriteAsync(cancellationToken).ConfigureAwait(false))
-               await _writer.WriteAsync(eventRecord, cancellationToken);
-         }
-         _writer.Complete();
+      public IDisposable StartGeneration()
+      {
+         var subscription = _eventSource.Run().Subscribe(WriteToChannel);
+         CompositeDisposable disposable = new CompositeDisposable(
+            Disposable.Create(subscription, sbscr => sbscr.Dispose()),
+            Disposable.Create(_writer, wrt => wrt.Complete())
+         );
+         return disposable;
+      }
+
+      private void WriteToChannel(T obj)
+      {
+         _writer.TryWrite(obj);
       }
    }
 }
