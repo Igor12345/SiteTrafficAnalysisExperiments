@@ -6,25 +6,26 @@ public sealed class TrafficSourceAsyncStart<T>
 {
     private readonly IEventsGenerator<T> _generator;
     private readonly ChannelWriter<T> _writer;
-    private readonly uint _period;
+    private readonly TimeSpan _period;
+    private readonly TimeProvider _timeProvider;
 
-    public TrafficSourceAsyncStart(IEventsGenerator<T> generator, Channel<T> channel, uint period)
+    public TrafficSourceAsyncStart(IEventsGenerator<T> generator, Channel<T> channel, TimeSpan period, TimeProvider? timeProvider = null)
     {
         _generator = generator ?? throw new ArgumentNullException(nameof(generator));
         _period = period;
+        _timeProvider = timeProvider ?? TimeProvider.System;
         _writer = channel.Writer;
     }
 
     public async Task StartGenerationAsync(CancellationToken cancellationToken)
     {
-        PeriodicTimer timer = new PeriodicTimer(TimeSpan.FromMilliseconds(_period));
+        PeriodicTimer timer = new PeriodicTimer(_period, _timeProvider);
 
-        while (await timer.WaitForNextTickAsync(cancellationToken))
+        while (await timer.WaitForNextTickAsync(cancellationToken).ConfigureAwait(false))
         {
             T eventRecord = _generator.Next();
             await _writer.WriteAsync(eventRecord, cancellationToken);
         }
-
         _writer.Complete();
     }
 }
