@@ -5,7 +5,7 @@ public interface IEventsGenerator<out T>
    public T Next();
 }
 //todo another assembly
-internal sealed class SiteVisitsGenerator : IEventsGenerator<(string dateTime, ulong userId, uint pageId)>
+public sealed class SiteVisitsGenerator : IEventsGenerator<(string dateTime, ulong userId, uint pageId)>
 {
    private readonly TimeProvider _timeProvider;
    private readonly ulong _userIdMin;
@@ -13,10 +13,10 @@ internal sealed class SiteVisitsGenerator : IEventsGenerator<(string dateTime, u
    private readonly ulong _userIdMax;
    private readonly uint _pagesIdMax;
 
-   public SiteVisitsGenerator(TimeProvider timeProvider, ulong userIdMin, uint usersNumber, uint pageIdMin,
-      uint pagesNumber)
+   public SiteVisitsGenerator(ulong userIdMin, uint usersNumber, uint pageIdMin,
+      uint pagesNumber, TimeProvider? timeProvider = null)
    {
-      _timeProvider = timeProvider;
+      _timeProvider = timeProvider ?? TimeProvider.System;
       _userIdMin = userIdMin;
       _userIdMax = userIdMin + usersNumber;
       _pageIdMin = pageIdMin;

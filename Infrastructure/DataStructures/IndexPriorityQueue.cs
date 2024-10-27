@@ -56,6 +56,21 @@
             return _items[0];
         }
 
+        public (T, int)[] Peek(int k)
+        {
+            if (!Any())
+                throw new InvalidOperationException("There are no items in the queue.");
+
+            int lentgth = Math.Min(k, _currentSize);
+            List<(T, int)> result = new(lentgth);
+
+            for (int i = 0; i < lentgth; i++)
+            {
+                result.Add(_items[i]);
+            }
+            return result.ToArray();
+        }
+
         public bool Any()
         {
             return _currentSize >= 0;
