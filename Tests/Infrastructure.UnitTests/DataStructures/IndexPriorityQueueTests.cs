@@ -122,6 +122,18 @@ namespace Infrastructure.UnitTests.DataStructures
         }
         
         [Test]
+        public void ShouldReturnTopElementsFromEmptyQueue()
+        {
+            IndexPriorityQueue<int> queue = new IndexPriorityQueue<int>(42);
+
+            int someNumber = 4;
+            int[]? sortedValues = queue.Peek(someNumber)?.Select(t => t.value).ToArray();
+            
+            Assert.That(sortedValues, Is.Not.Null);
+            Assert.That(sortedValues.Count, Is.EqualTo(0));
+        }
+        
+        [Test]
         public void ShouldReturnTopKElements()
         {
             (int, int)[] input =

@@ -38,15 +38,18 @@ namespace Infrastructure.DataStructures
 
         public void Enqueue(T item, int key)
         {
-            if (_references.ContainsKey(item))
+            lock (_locker)
             {
-                Update(item, key);
-                return;
-            }
+                if (_references.ContainsKey(item))
+                {
+                    Update(item, key);
+                    return;
+                }
 
-            _items[++_currentSize] = (item, key);
-            _references.Add(item, _currentSize);
-            Swim(_currentSize);
+                _items[++_currentSize] = (item, key);
+                _references.Add(item, _currentSize);
+                Swim(_currentSize);
+            }
         }
 
         public void Enqueue((T value, int priority) value)
@@ -58,10 +61,14 @@ namespace Infrastructure.DataStructures
         {
             if (!Any())
                 throw new InvalidOperationException("There are no items in the queue.");
-            var top = _items[0];
-            Exchange(0, _currentSize);
-            _items[_currentSize--] = default;
-            Sink(0);
+            (T value, int priority) top;
+            lock (_locker)
+            {
+                top = _items[0];
+                Exchange(0, _currentSize);
+                _items[_currentSize--] = default;
+                Sink(0);
+            }
             return top;
         }
 
@@ -74,9 +81,6 @@ namespace Infrastructure.DataStructures
 
         public (T value, int priority)[] Peek(int k)
         {
-            if (!Any())
-                throw new InvalidOperationException("There are no items in the queue.");
-
             IndexPriorityQueue<T> copyOfQueue = CreateCopy();
             int length = Math.Min(k, _currentSize + 1);
 
@@ -95,20 +99,22 @@ namespace Infrastructure.DataStructures
 
         public void Update(T item, int priority)
         {
-            if (!_references.ContainsKey(item))
+            if (!_references.TryGetValue(item, out var ind))
                 throw new InvalidOperationException($"The item {item} does not exist in the queue.");
 
-            int ind = _references[item];
-            int prevPriority = _items[ind].priority;
-            if (_comparer.Compare(prevPriority, priority) == 0)
-                return;
+            lock (_locker)
+            {
+                int prevPriority = _items[ind].priority;
+                if (_comparer.Compare(prevPriority, priority) == 0)
+                    return;
 
-            _items[ind] = (item, priority);
-            bool moveUp = _comparer.Compare(priority, prevPriority) > 0;
-            if (moveUp)
-                Swim(ind);
-            else
-                Sink(ind);
+                _items[ind] = (item, priority);
+                bool moveUp = _comparer.Compare(priority, prevPriority) > 0;
+                if (moveUp)
+                    Swim(ind);
+                else
+                    Sink(ind);
+            }
         }
 
         private IndexPriorityQueue<T> CreateCopy()
