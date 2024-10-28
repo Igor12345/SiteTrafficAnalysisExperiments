@@ -21,7 +21,6 @@ public class TrafficHistory
 
     public void AddOrUpdate(LogEntry logEntry)
     {
-        Console.WriteLine($">>-- Traffic History added: {logEntry}, Thread: {Thread.CurrentThread.ManagedThreadId}");
         int epoch = _epochIdentifier(logEntry.DateTime);
         var locker = _lockers.GetOrAdd(epoch, new object());
         bool newVisit;
@@ -31,7 +30,6 @@ public class TrafficHistory
             {
                 _pagesHistory[logEntry.PageId] = visits = new();
             }
-
             newVisit = visits.Add(logEntry.CustomerId);
         }
 

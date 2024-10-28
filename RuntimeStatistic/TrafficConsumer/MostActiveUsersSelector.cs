@@ -10,10 +10,9 @@ public class MostActiveUsersSelector : IConsumer<Result<LogEntry>>
     private readonly TrafficHistory _history;
     private readonly IndexPriorityQueue<LogEntry> _activeUsers;
 
-    public MostActiveUsersSelector(TrafficHistory history)
+    public MostActiveUsersSelector(TrafficHistory history, int queueCapacity)
     {
         _history = history;
-        int queueCapacity = 100;
         _activeUsers = new IndexPriorityQueue<LogEntry>(queueCapacity);
     }
 
@@ -23,7 +22,6 @@ public class MostActiveUsersSelector : IConsumer<Result<LogEntry>>
             return;
 
         var logEntry = result.Value;
-        Console.WriteLine($"--- Activity users selector: {logEntry} added to queue, thread: {Thread.CurrentThread.ManagedThreadId}");
         //todo a bit unsafe
         int visits = (int)_history.GetUniqueVisits(logEntry.CustomerId);
         //todo implement Update, to change priority 
