@@ -24,6 +24,7 @@ public sealed class TrafficSourceAsyncStart<T>
         while (await timer.WaitForNextTickAsync(cancellationToken).ConfigureAwait(false))
         {
             T eventRecord = _generator.Next();
+            Console.WriteLine($"--> Source generator - Created event {eventRecord}, thread {Thread.CurrentThread.ManagedThreadId}");
             await _writer.WriteAsync(eventRecord, cancellationToken);
         }
         _writer.Complete();

@@ -23,7 +23,7 @@ public class MostActiveUsersSelector : IConsumer<Result<LogEntry>>
             return;
 
         var logEntry = result.Value;
-        
+        Console.WriteLine($"--- Activity users selector: {logEntry} added to queue, thread: {Thread.CurrentThread.ManagedThreadId}");
         //todo a bit unsafe
         int visits = (int)_history.GetUniqueVisits(logEntry.CustomerId);
         //todo implement Update, to change priority 
