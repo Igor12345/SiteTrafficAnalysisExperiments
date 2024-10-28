@@ -34,7 +34,9 @@ public class CompositeConsumer<T, T1> : IConsumer<T>
 
     public IConsumer<T1> Then(Action<T1> handler)
     {
-        return new CompositeConsumer<T1, object>(handler);
+        var next = new CompositeConsumer<T1, object>(handler);
+        _next = next;
+        return next;
     } 
    
     public void Consume(T item)
