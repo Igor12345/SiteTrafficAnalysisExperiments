@@ -65,7 +65,7 @@ namespace Infrastructure.UnitTests.DataStructures
         }
 
         [Test]
-        public void TheQueueShouldOrderValues()
+        public void ShouldOrderValues()
         {
             IndexPriorityQueue<int> queue =
                 new IndexPriorityQueue<int>(4);
@@ -97,7 +97,7 @@ namespace Infrastructure.UnitTests.DataStructures
         [Test]
         [TestCase(true)]
         [TestCase(false)]
-        public void TheQueueShouldUseProvidedComparer(bool regularOrder)
+        public void ShouldUseProvidedComparer(bool regularOrder)
         {
             (int, int)[] input =
             [
