@@ -32,6 +32,6 @@ public class MostActiveUsersSelector : IConsumer<Result<LogEntry>>
 
     public ulong[] GetMostActiveUsers(int number)
     {
-        return _activeUsers.Peek(number).Select(item => item.Item1.CustomerId).ToArray();
+        return _activeUsers.Peek(number).Select(item => item.value.CustomerId).ToArray();
     }
 }
