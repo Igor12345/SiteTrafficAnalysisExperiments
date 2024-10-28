@@ -8,13 +8,13 @@ namespace RuntimeStatistic.TrafficConsumer;
 public class MostActiveUsersSelector : IConsumer<Result<LogEntry>>
 {
     private readonly TrafficHistory _history;
-    private IndexPriorityQueue<LogEntry, LogEntryComparer> _activeUsers;
+    private readonly IndexPriorityQueue<LogEntry> _activeUsers;
 
     public MostActiveUsersSelector(TrafficHistory history)
     {
         _history = history;
         int queueCapacity = 100;
-        _activeUsers = new IndexPriorityQueue<LogEntry, LogEntryComparer>(queueCapacity, new LogEntryComparer(history));
+        _activeUsers = new IndexPriorityQueue<LogEntry>(queueCapacity);
     }
 
     public void Consume(Result<LogEntry> result)

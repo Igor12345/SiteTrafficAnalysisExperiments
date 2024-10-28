@@ -7,8 +7,8 @@ namespace Infrastructure.UnitTests.DataStructures
         [Test]
         public void QueueCanBeCreated()
         {
-            IndexPriorityQueue<int, Comparer<int>> queue =
-                new IndexPriorityQueue<int, Comparer<int>>(4, Comparer<int>.Default);
+            IndexPriorityQueue<int> queue =
+                new IndexPriorityQueue<int>(4);
 
             Assert.That(queue, Is.Not.Null);
             Assert.That(queue.Capacity, Is.EqualTo(4));
@@ -18,14 +18,13 @@ namespace Infrastructure.UnitTests.DataStructures
         [Test]
         public void ShouldNotCreateQueueWithNegativeCapacity()
         {
-            Assert.Throws<ArgumentOutOfRangeException>(() =>
-                new IndexPriorityQueue<int, Comparer<int>>(-4, Comparer<int>.Default));
+            Assert.Throws<ArgumentOutOfRangeException>(() => { _ = new IndexPriorityQueue<int>(-4); });
         }
 
         [Test]
         public void ShouldBeAbleToAddValuesToQueue()
         {
-            IndexPriorityQueue<int, IComparer<int>> queue = CreateSampleQueue(new[] { (23, 4) });
+            IndexPriorityQueue<int> queue = CreateSampleQueue([(23, 4)]);
 
             Assert.That(queue.Any(), Is.True);
         }
@@ -33,7 +32,7 @@ namespace Infrastructure.UnitTests.DataStructures
         [Test]
         public void ShouldBeAbleToPeekValuesFromQueueMultipleTimes()
         {
-            IndexPriorityQueue<int, IComparer<int>> queue = CreateSampleQueue(new[] { (23, 4) });
+            IndexPriorityQueue<int> queue = CreateSampleQueue([(23, 4)]);
 
             (int v, int k) = queue.Peek();
             Assert.Multiple(() =>
@@ -53,7 +52,7 @@ namespace Infrastructure.UnitTests.DataStructures
         [Test]
         public void ShouldBeAbleDequeueFromQueueOnlyOnce()
         {
-            IndexPriorityQueue<int, IComparer<int>> queue = CreateSampleQueue(new[] { (23, 4) });
+            IndexPriorityQueue<int> queue = CreateSampleQueue([(23, 4)]);
 
             (int v, int k) = queue.Dequeue();
             Assert.Multiple(() =>
@@ -68,9 +67,8 @@ namespace Infrastructure.UnitTests.DataStructures
         [Test]
         public void TheQueueShouldOrderValues()
         {
-            IComparer<int> reverseComparer = new ReverseComparer();
-            IndexPriorityQueue<int, IComparer<int>> queue =
-                new IndexPriorityQueue<int, IComparer<int>>(4, reverseComparer);
+            IndexPriorityQueue<int> queue =
+                new IndexPriorityQueue<int>(4);
 
             int value1 = 23;
             int value2 = 34;
@@ -97,39 +95,101 @@ namespace Infrastructure.UnitTests.DataStructures
         }
 
         [Test]
-        public void TheQueueShouldUseProvidedComparer()
+        [TestCase(true)]
+        [TestCase(false)]
+        public void TheQueueShouldUseProvidedComparer(bool regularOrder)
         {
             (int, int)[] input =
-            {
+            [
                 (4, 2),
-                (5, 3),
-                (1, 4),
+                (5, 4),
+                (1, 7),
                 (2, 3)
-            };
-            IndexPriorityQueue<int, IComparer<int>> queue = CreateSampleQueue(input, Comparer<int>.Default);
+            ];
+            IComparer<int> comparer = regularOrder ? Comparer<int>.Default : new ReverseComparer();
+            IndexPriorityQueue<int> queue = CreateSampleQueue(input, comparer);
 
             List<int> sortedValues = new List<int>();
             while (queue.Any())
             {
-                sortedValues.Add(queue.Dequeue().Item1);
+                sortedValues.Add(queue.Dequeue().value);
             }
 
             Assert.That(sortedValues.Count, Is.EqualTo(4));
 
-            int[] expected = [1,2,4,5];
-            int i = 0;
-            foreach (int item in sortedValues)
-            {
-                Assert.That(item, Is.EqualTo(expected[i++]));
-            }
+            int[] expected = regularOrder ? [1, 5, 2, 4] : [4, 2, 5, 1];
+            CollectionAssert.AreEqual(expected, sortedValues);
+        }
+        
+        [Test]
+        public void ShouldReturnTopKElements()
+        {
+            (int, int)[] input =
+            [
+                (4, 2),
+                (5, 4),
+                (1, 7),
+                (2, 3),
+                (3, 6),
+            ];
+            IndexPriorityQueue<int> queue = CreateSampleQueue(input);
+
+            int lessThanSize = 4;
+            var sortedValuesPartOf = queue.Peek(lessThanSize).Select(t => t.value).ToArray();
+            int[] expected1 = [1, 3, 5, 2];
+            Assert.That(sortedValuesPartOf.Count, Is.EqualTo(lessThanSize));
+            CollectionAssert.AreEqual(expected1, sortedValuesPartOf);
+            
+            int moreThanSize = 7;
+            var sortedValuesAllOf = queue.Peek(moreThanSize).Select(t => t.value).ToArray();
+            int[] expected2 = [1, 3, 5, 2, 4];
+            Assert.That(sortedValuesAllOf.Count, Is.EqualTo(queue.Count()));
+            CollectionAssert.AreEqual(expected2, sortedValuesAllOf);
+        }
+        
+        [Test]
+        [TestCase(true)]
+        [TestCase(false)]
+        public void ShouldBeAbleUpdateItemPriority(bool regularOrder)
+        {
+            (int, int)[] input =
+            [
+                (4, 2),
+                (5, 8),
+                (1, 14),
+                (2, 5),
+                (3, 11)
+            ];
+            IComparer<int> comparer = regularOrder ? Comparer<int>.Default : new ReverseComparer();
+            IndexPriorityQueue<int> queue = CreateSampleQueue(input, comparer);
+
+            int moreThanSize = 7;
+            var sortedValues = queue.Peek(moreThanSize).Select(t => t.value).ToArray();
+
+            int[] result = [1, 3, 5, 2, 4];
+            int[] expected = regularOrder ? result : result.Reverse().ToArray();
+            CollectionAssert.AreEqual(expected, sortedValues);
+
+            queue.Update(2, 6);
+            queue.Update(5, 12);
+            sortedValues = queue.Peek(moreThanSize).Select(t => t.value).ToArray();
+            int[] updatedResult = [1, 5, 3, 2, 4];
+            int[] updatedExpected = regularOrder ? updatedResult : updatedResult.Reverse().ToArray();
+            CollectionAssert.AreEqual(updatedExpected, sortedValues);
+            
+            queue.Update(3, 4);
+            sortedValues = queue.Peek(moreThanSize).Select(t => t.value).ToArray();
+            updatedResult = [1, 5, 2, 3, 4];
+            updatedExpected = regularOrder ? updatedResult : updatedResult.Reverse().ToArray();
+            CollectionAssert.AreEqual(updatedExpected, sortedValues);
         }
 
-        private static IndexPriorityQueue<T, IComparer<T>> CreateSampleQueue<T>((T, int)[] items,
-            IComparer<T>? comparer = null)
+        private static IndexPriorityQueue<T> CreateSampleQueue<T>((T, int)[] items,
+            IComparer<int>? comparer = null) where T : notnull
         {
-            comparer ??= Comparer<T>.Default;
-            IndexPriorityQueue<T, IComparer<T>> queue =
-                new IndexPriorityQueue<T, IComparer<T>>(4, comparer);
+            comparer ??= Comparer<int>.Default;
+            IndexPriorityQueue<T> queue =
+                new IndexPriorityQueue<T>(items.Length * 2, comparer);
 
             foreach ((T, int) item in items)
             {
