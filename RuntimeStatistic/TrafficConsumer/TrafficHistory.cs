@@ -1,16 +1,18 @@
 ﻿using System.Collections.Concurrent;
 using Infrastructure;
 using LogsAnalyzer.LogEntries;
+using userId = ulong;
+using pageId = uint;
 
 namespace RuntimeStatistic.TrafficConsumer;
 
-//will assume there significantly are less pages than visitors, per epoch 
+//will assume there significantly are fewer pages than visitors, per epoch 
 public class TrafficHistory
 {
     private readonly Func<DateTime, int> _epochIdentifier;
-    Dictionary<uint, HashSet<ulong>> _pagesHistory = new();
-    ConcurrentDictionary<ulong, uint> _usersStatistic = new();
-    ConcurrentDictionary<int, object> _lockers = new();
+    private readonly Dictionary<pageId, HashSet<userId>> _pagesHistory = new();
+    private readonly ConcurrentDictionary<userId, uint> _usersStatistic = new();
+    private readonly ConcurrentDictionary<int, object> _lockers = new();
     
     public TrafficHistory(Func<DateTime, int> epochIdentifier)
     {
@@ -34,16 +36,14 @@ public class TrafficHistory
 
         if (newVisit)
         {
-            _usersStatistic.AddOrUpdate(logEntry.CustomerId, 0, (id, count) => count + 1);
+            _usersStatistic.AddOrUpdate(logEntry.CustomerId, 1, (_, count) => count + 1);
         }
     }
 
-    public uint GetUniqueVisits(ulong customerId)
+    public uint GetUniqueVisits(userId customerId)
     {
         if(_usersStatistic.TryGetValue(customerId, out var count))
             return count;
         return 0;
     }
-
-
 }
