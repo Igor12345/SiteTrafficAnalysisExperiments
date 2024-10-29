@@ -1,4 +1,5 @@
-﻿using Infrastructure;
+﻿using System.Diagnostics;
+using Infrastructure;
 using Infrastructure.DataStructures;
 using LogsAnalyzer.LogEntries;
 
@@ -16,16 +17,23 @@ public class MostActiveUsersSelector
         _activeUsers = new IndexPriorityQueue<UserId>(queueCapacity);
     }
 
-    public Result<LogEntry> Consume(Result<LogEntry> result)
+    public Result<LogEntry> Consume(Result<LogEntry> result, Stopwatch? sw = null)
     {
+        sw ??= Stopwatch.StartNew();
         if (!result.Success)
             return result;
 
+        long ticks = sw.ElapsedMilliseconds;
         var logEntry = result.Value;
         //todo a bit unsafe
         int visits = (int)_history.GetUniqueVisits(logEntry.CustomerId);
+        
+        long ticks2 = sw.ElapsedMilliseconds;
         _activeUsers.Enqueue(logEntry.CustomerId, visits);
 
+        long ticks3 = sw.ElapsedMilliseconds;
+        
+        Console.WriteLine($"MostActiveUsersSelector: enter {ticks}, after history {ticks2}, after queue {ticks3}, Thread: {Thread.CurrentThread.ManagedThreadId}");
         return result;
     }
 

@@ -25,44 +25,49 @@ public class MostActiveUsersSelectorTests
         uint usersNumber = 10000;
         PageId pageIdMin = 10_000;
         uint pagesNumber = 1_000;
-        var fakeTimeProvider = new FakeTimeProvider();
         var zero1 = GC.CollectionCount(0);
         var first1 = GC.CollectionCount(1);
         var second1 = GC.CollectionCount(2);
         var total1 = GC.GetTotalMemory(false) / 1024 / 1024;
         var allocated1 = GC.GetTotalAllocatedBytes() / 1024 / 1024;
+        
+        var fakeTimeProvider = TimeProvider.System; // new FakeTimeProvider();
 
+        Stopwatch sw = Stopwatch.StartNew();
         IEventsGenerator<(string dateTime, UserId userId, PageId pageId)> logsGenerator =
             new SiteVisitsGenerator(userIdMin, usersNumber, pageIdMin, pagesNumber, fakeTimeProvider);
 
         EpochIdentifier epochIdentifier = new(Epochs.ByMinute, DateTime.UtcNow);
-        TrafficHistory trafficHistory = new TrafficHistory(time => epochIdentifier.DetermineEpoch(time));
+        TrafficHistory trafficHistory = new TrafficHistory(time => epochIdentifier.DetermineEpoch(time), sw);
 
         MostActiveUsersSelector activityConsumer = new MostActiveUsersSelector(trafficHistory, 1000);
         var parserConsumer =
             CompositeConsumer<(string dateTime, UserId userId, PageId pageId), Result<LogEntry>>
-                .Create(LogEntry.ParseRecord);
+                .Create(e => LogEntry.ParseRecord(e, sw), sw);
         parserConsumer.Then(logEntry => trafficHistory.Save(logEntry))
-            .Then(logEntry => activityConsumer.Consume(logEntry));
+            .Then(logEntry => activityConsumer.Consume(logEntry, sw));
 
         CancellationTokenSource cts = new CancellationTokenSource();
         int channelCapacity = 1000;
         Channel<(string dateTime, UserId userId, PageId pageId)> channel =
             Channel.CreateBounded<(string dateTime, UserId userId, PageId pageId)>(channelCapacity);
         TrafficReader<(string dateTime, UserId userId, PageId pageId)> trafficReader =
-            new TrafficReader<(string dateTime, UserId userId, PageId pageId)>(channel, parserConsumer);
+            new TrafficReader<(string dateTime, UserId userId, PageId pageId)>(channel, parserConsumer, sw);
         _ = Task.Run(async () => await trafficReader.ReadAsync(cts.Token), cts.Token);
 
         var interval = TimeSpan.FromMilliseconds(1);
         TrafficSourceAsyncStart<(string dateTime, UserId userId, PageId pageId)> trafficSource =
             new TrafficSourceAsyncStart<(string dateTime, UserId userId, PageId pageId)>(logsGenerator, channel,
-                interval, fakeTimeProvider);
+                interval, fakeTimeProvider, sw);
         _ = Task.Run(async () => await trafficSource.StartGenerationAsync(cts.Token), cts.Token);
 
         for (int i = 0; i < 1000; i++)
         {
-            fakeTimeProvider.Advance(interval);
-            await Task.Delay(TimeSpan.FromMilliseconds(1));
+            long ms1 = sw.ElapsedMilliseconds;
+            // fakeTimeProvider.Advance(interval);
+            long ms2 = sw.ElapsedMilliseconds;
+            Console.WriteLine($"One turn: {ms1}, Thread: {Thread.CurrentThread.ManagedThreadId}");
+            await Task.Delay(1);
         }
 
         await Task.Delay(TimeSpan.FromSeconds(1));
@@ -106,7 +111,7 @@ public class MostActiveUsersSelectorTests
         MostActiveUsersSelector activityConsumer = new MostActiveUsersSelector(trafficHistory, (int)usersNumber);
         var parserConsumer =
             CompositeConsumer<(string dateTime, UserId userId, PageId pageId), Result<LogEntry>>
-                .Create(LogEntry.ParseRecord);
+                .Create(item => LogEntry.ParseRecord(item));
         parserConsumer.Then(logEntry => trafficHistory.Save(logEntry))
             .Then(logEntry => activityConsumer.Consume(logEntry));
 
@@ -136,9 +141,9 @@ public class MostActiveUsersSelectorTests
         HashSet<UserId> uniqueUsers = new();
         var observable = eventSource.Run();
         using var subscr = observable
-            .Select(LogEntry.ParseRecord)
+            .Select(item => LogEntry.ParseRecord(item))
             .Select(trafficHistory.Save)
-            .Select(activityConsumer.Consume)
+            .Select(e => activityConsumer.Consume(e))
             .Subscribe(e => SaveToStorage(e, uniqueUsers),
                 e => HandleError(e, uniqueUsers));
         CancellationTokenSource ctsInternal = CancellationTokenSource.CreateLinkedTokenSource(cts.Token);
