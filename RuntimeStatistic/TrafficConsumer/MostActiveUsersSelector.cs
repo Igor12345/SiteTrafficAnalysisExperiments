@@ -5,31 +5,32 @@ using LogsAnalyzer.LogEntries;
 namespace RuntimeStatistic.TrafficConsumer;
 
 //todo split responsibilities: update history, update priority queue
-public class MostActiveUsersSelector : IConsumer<Result<LogEntry>>
+public class MostActiveUsersSelector
 {
     private readonly TrafficHistory _history;
-    private readonly IndexPriorityQueue<LogEntry> _activeUsers;
+    private readonly IndexPriorityQueue<UserId> _activeUsers;
 
     public MostActiveUsersSelector(TrafficHistory history, int queueCapacity)
     {
         _history = history;
-        _activeUsers = new IndexPriorityQueue<LogEntry>(queueCapacity);
+        _activeUsers = new IndexPriorityQueue<UserId>(queueCapacity);
     }
 
-    public void Consume(Result<LogEntry> result)
+    public Result<LogEntry> Consume(Result<LogEntry> result)
     {
         if (!result.Success)
-            return;
+            return result;
 
         var logEntry = result.Value;
         //todo a bit unsafe
         int visits = (int)_history.GetUniqueVisits(logEntry.CustomerId);
-        //todo implement Update, to change priority 
-        _activeUsers.Enqueue(logEntry, visits);
+        _activeUsers.Enqueue(logEntry.CustomerId, visits);
+
+        return result;
     }
 
     public ulong[] GetMostActiveUsers(int number)
     {
-        return _activeUsers.Peek(number).Select(item => item.value.CustomerId).ToArray();
+        return _activeUsers.Peek(number).Select(item => item.value).ToArray();
     }
 }

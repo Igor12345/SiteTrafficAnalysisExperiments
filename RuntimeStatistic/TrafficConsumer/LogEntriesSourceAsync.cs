@@ -5,7 +5,7 @@ using LogsAnalyzer.LogReader;
 
 namespace RuntimeStatistic.TrafficConsumer;
 
-public class LogEntriesSourceAsync: ILinesSourceAsync, IConsumer<(string dateTime, ulong userId, uint pageId)>
+public class LogEntriesSourceAsync: ILinesSourceAsync, IConsumer<(string dateTime, UserId userId, PageId pageId)>
 {
     private readonly BlockingCollection<LogEntry> _logEntries = new();
     public async IAsyncEnumerator<LogEntry> GetAsyncEnumerator(CancellationToken cancellationToken = new())
@@ -16,7 +16,7 @@ public class LogEntriesSourceAsync: ILinesSourceAsync, IConsumer<(string dateTim
         }
     }
 
-    public void Consume((string dateTime, ulong userId, uint pageId) item)
+    public void Consume((string dateTime, UserId userId, PageId pageId) item)
     {
         if (!DateTime.TryParseExact(item.dateTime, "s", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal,
                 out var dateTime))

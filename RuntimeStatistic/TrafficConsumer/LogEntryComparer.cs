@@ -15,6 +15,6 @@ internal class LogEntryComparer : IComparer<LogEntry>
     {
         uint uniqueVisitsX = _history.GetUniqueVisits(x.CustomerId);
         uint uniqueVisitsY = _history.GetUniqueVisits(y.CustomerId);
-        return Comparer<uint>.Default.Compare(uniqueVisitsX, uniqueVisitsY);
+        return Comparer<UserId>.Default.Compare(uniqueVisitsX, uniqueVisitsY);
     }
 }

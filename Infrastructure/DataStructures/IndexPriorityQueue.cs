@@ -9,27 +9,32 @@ namespace Infrastructure.DataStructures
     public sealed class IndexPriorityQueue<T>
         where T : notnull
     {
+        private readonly IEqualityComparer<T> _comparerForUpdate;
         private readonly IComparer<int> _comparer;
         private readonly int _capacity;
         private readonly (T value, int priority)[] _items;
-        private readonly Dictionary<T, int> _references = new();
+        private readonly Dictionary<T, int> _references;
         private readonly bool _rented;
         private int _currentSize = -1;
         private readonly object _locker = new();
 
-        public IndexPriorityQueue(int capacity, IComparer<int>? comparer = null)
+        public IndexPriorityQueue(int capacity, IEqualityComparer<T>? comparerForUpdate = null, IComparer<int>? comparer = null)
         {
+            _comparerForUpdate = comparerForUpdate?? EqualityComparer<T>.Default;
+            _references = new Dictionary<T, int>(_comparerForUpdate);
             _capacity = Guard.Positive(capacity);
             _items = new (T value, int priority)[Capacity];
             _comparer = comparer ?? Comparer<int>.Default;
         }
 
-        private IndexPriorityQueue((T value, int priority)[] items, int currentSize, IComparer<int> comparer)
+        private IndexPriorityQueue((T value, int priority)[] items, int currentSize, IComparer<int> comparer, IEqualityComparer<T> comparerForUpdate)
         {
             _items = items;
             _rented = true;
             _comparer = comparer;
             _currentSize = currentSize;
+            _comparerForUpdate = comparerForUpdate;
+            _references = new Dictionary<T, int>(comparerForUpdate);
         }
 
         public int Capacity => _capacity;
@@ -127,7 +132,7 @@ namespace Infrastructure.DataStructures
                 _items.CopyTo(copyOfItems, 0);
             }
 
-            return new IndexPriorityQueue<T>(copyOfItems, _currentSize, _comparer);
+            return new IndexPriorityQueue<T>(copyOfItems, _currentSize, _comparer, _comparerForUpdate);
         }
 
         private void Exchange(int left, int right)

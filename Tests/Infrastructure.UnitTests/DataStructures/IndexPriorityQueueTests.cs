@@ -127,7 +127,7 @@ namespace Infrastructure.UnitTests.DataStructures
             IndexPriorityQueue<int> queue = new IndexPriorityQueue<int>(42);
 
             int someNumber = 4;
-            int[]? sortedValues = queue.Peek(someNumber)?.Select(t => t.value).ToArray();
+            int[] sortedValues = queue.Peek(someNumber).Select(t => t.value).ToArray();
             
             Assert.That(sortedValues, Is.Not.Null);
             Assert.That(sortedValues.Count, Is.EqualTo(0));
@@ -201,7 +201,7 @@ namespace Infrastructure.UnitTests.DataStructures
         {
             comparer ??= Comparer<int>.Default;
             IndexPriorityQueue<T> queue =
-                new IndexPriorityQueue<T>(items.Length * 2, comparer);
+                new IndexPriorityQueue<T>(items.Length * 2, null, comparer);
 
             foreach ((T, int) item in items)
             {

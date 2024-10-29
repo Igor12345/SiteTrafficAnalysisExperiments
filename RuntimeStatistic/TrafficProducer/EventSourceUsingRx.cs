@@ -8,9 +8,8 @@ public sealed class EventSourceUsingRx<T>
     private readonly IEventsGenerator<T> _generator;
     private readonly TimeSpan _interval;
     private readonly List<(IEventsGenerator<T> generator, TimeSpan interval)> _otherGenerators = new();
-    private IObservable<T> _observable;
     public IScheduler Scheduler { get; init; } = System.Reactive.Concurrency.Scheduler.Default;
-    public Action<T> DoOnEveryEvent { get; init; } = _ => { };
+    public Action<T>? DoOnEveryEvent { get; init; } = _ => { };
 
     internal void AddAdditionalGenerator(IEventsGenerator<T> generator, TimeSpan interval)
     {
@@ -26,18 +25,17 @@ public sealed class EventSourceUsingRx<T>
 
     public IObservable<T> Run()
     {
-        Console.WriteLine("Inside Run");
-        _observable = Observable.Interval(_interval, Scheduler).Select(_ => _generator.Next());
+        var observable = Observable.Interval(_interval, Scheduler).Select(_ => _generator.Next());
 
         //can be used to produce errors, etc.
         foreach (var source in _otherGenerators)
         {
             var secondaryObservable = Observable.Interval(source.interval)
                 .Select(_ => source.generator.Next());
-            _observable = _observable.Merge(secondaryObservable);
+            observable = observable.Merge(secondaryObservable);
         }
 
-        return _observable.Do(ExecuteActions);
+        return observable.Do(ExecuteActions);
     }
 
     private void ExecuteActions(T obj)
