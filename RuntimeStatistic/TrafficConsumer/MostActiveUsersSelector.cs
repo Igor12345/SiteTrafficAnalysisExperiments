@@ -18,18 +18,16 @@ public class MostActiveUsersSelector
 
     public Result<LogEntry> Consume(Result<LogEntry> result)
     {
-        if (!result.Success)
-            return result;
-
-        var logEntry = result.Value;
-        //todo a bit unsafe
-        int visits = (int)_history.GetUniqueVisits(logEntry.CustomerId);
-        _activeUsers.Enqueue(logEntry.CustomerId, visits);
-
+        result.OnSuccess(logEntry =>
+        {
+            //todo a bit unsafe
+            int visits = (int)_history.GetUniqueVisits(logEntry.CustomerId);
+            _activeUsers.Enqueue(logEntry.CustomerId, visits);
+        });
         return result;
     }
 
-    public ulong[] GetMostActiveUsers(int number)
+    public UserId[] GetMostActiveUsers(int number)
     {
         return _activeUsers.Peek(number).Select(item => item.value).ToArray();
     }

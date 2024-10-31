@@ -54,34 +54,31 @@ public sealed class LogEntryParser : ILogEntryParser
         return Result<LogEntry>.Ok(new LogEntry(customerId, pageId, dateTime));
     }
 
-    public Result<LogEntry> Parse(ReadOnlySpan<byte> lineSpan)
+    public Result<LogEntry> Parse(ReadOnlyMemory<byte> line)
     {
-        var timeMarkResult = LookingForPart<DateTime>(lineSpan, DateTime.TryParse, 0, "Invalid time mark:");
-        if (timeMarkResult.IsError)
-            return Result<LogEntry>.Error(timeMarkResult.ErrorMessage);
+        LogEntry record = new LogEntry(default, default, default);
+        //with side effects!!!
+        var result = Result<(int, int)>.Ok((0, 0))
+            .Bind(st => LookingForPart<DateTime, int>(line, DateTime.TryParse, st, "Invalid time mark:")
+                .Tap(tm => record = record with { DateTime = tm.Item1 }))
+            .Bind(tm => LookingForPart<UInt64, DateTime>(line, UInt64.TryParse, tm, "Invalid customer id:")
+                .Tap(t => record = record with { CustomerId = t.Item1 }))
+            .Bind(us => LookingForPart<UInt32, UInt64>(line, UInt32.TryParse, us, "Invalid page id:")
+                .Tap(t => record = record with { PageId = t.Item1 }))
+            .Bind(r => Result<LogEntry>.Ok(record));
 
-        var userIdResult =
-            LookingForPart<UInt64>(lineSpan, UInt64.TryParse, timeMarkResult.Value.Item2, "Invalid customer id:");
-        if (userIdResult.IsError)
-            return Result<LogEntry>.Error(userIdResult.ErrorMessage);
-
-        var pageIdResult =
-            LookingForPart<UInt32>(lineSpan, UInt32.TryParse, userIdResult.Value.Item2, "Invalid page id:");
-        if (pageIdResult.IsError)
-            return Result<LogEntry>.Error(pageIdResult.ErrorMessage);
-
-
-        return Result<LogEntry>.Ok(new LogEntry(userIdResult.Value.Item1, pageIdResult.Value.Item1,
-            timeMarkResult.Value.Item1));
+        return result;
     }
 
-    private Result<(T, int)> LookingForPart<T>(ReadOnlySpan<byte> lineSpan, TryParse<T> tryParse, int startFrom,
+    private Result<(T, int)> LookingForPart<T, TU>(ReadOnlyMemory<byte> line, TryParse<T> tryParse, (TU, int) prevResult,
         string errorMessagePrefix)
     {
+        int startFrom = prevResult.Item2;
         Span<char> numberChars = stackalloc char[MaxNumberLength];
+        ReadOnlySpan<byte> lineSpan = line.Span;
         for (int i = startFrom; i < lineSpan.Length - 1; i++)
         {
-            if (lineSpan[i] == _delimiterByte || i == lineSpan.Length - 2) 
+            if (lineSpan[i] == _delimiterByte || i == lineSpan.Length - 2)
             {
                 if (i >= numberChars.Length)
                     break;

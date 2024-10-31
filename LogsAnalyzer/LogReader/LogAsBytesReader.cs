@@ -46,7 +46,7 @@ public class LogAsBytesReader : ILinesSourceAsync
 
                 var extractionResult =
                     _logEntriesExtractor.ExtractRecords(
-                        populatedContainer.RowData.AsSpan()[..populatedContainer.WrittenBytesLength],
+                        populatedContainer.RowData.AsMemory()[..populatedContainer.WrittenBytesLength],
                         populatedContainer.ParsedRecords);
 
                 if (extractionResult.Success)

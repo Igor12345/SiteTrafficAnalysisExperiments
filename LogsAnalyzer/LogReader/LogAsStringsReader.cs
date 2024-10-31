@@ -30,13 +30,17 @@ public class LogAsStringsReader : ILinesSourceAsync
                     break;
 
                 var parsingResult = _parser.Parse(line);
-                if (!parsingResult.Success)
+                 
+                switch (parsingResult)
                 {
-                    HandleError(parsingResult.ErrorMessage);
-                }
-                else
-                {
-                    yield return parsingResult.Value;
+                    case Success<LogEntry> success:
+                        yield return success.Value;
+                        break;
+                    case Failure<LogEntry> failure:
+                        HandleError(failure.ErrorMessage);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(parsingResult));
                 }
             }
         }

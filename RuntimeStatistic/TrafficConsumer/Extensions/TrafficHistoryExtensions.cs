@@ -5,11 +5,9 @@ namespace RuntimeStatistic.TrafficConsumer.Extensions;
 
 public static class TrafficHistoryExtensions
 {
-    public static Result<LogEntry> Save(this TrafficHistory trafficHistory, Result<LogEntry> logEntry)
+    public static Result<LogEntry> Save(this TrafficHistory trafficHistory, Result<LogEntry> logEntryResult)
     {
-        if (!logEntry.Success)
-            return logEntry;
-        trafficHistory.AddOrUpdate(logEntry.Value);
-        return logEntry;
+        logEntryResult.OnSuccess(trafficHistory.AddOrUpdate);
+        return logEntryResult;
     }
 }

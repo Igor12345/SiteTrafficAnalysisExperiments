@@ -168,7 +168,7 @@ public class MostActiveUsersSelectorTests
 
     private void SaveToStorage(Result<LogEntry> result, HashSet<UserId> uniqueUsers)
     {
-        uniqueUsers.Add(result.Value.CustomerId);
+        result.OnSuccess(v => uniqueUsers.Add(v.CustomerId));
     }
 
     private void HandleError(Exception exc, HashSet<UserId> uniqueUsers)

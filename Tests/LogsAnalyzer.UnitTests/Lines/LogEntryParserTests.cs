@@ -1,3 +1,4 @@
+using Infrastructure;
 using LogsAnalyzer.LogEntries;
 
 namespace LogsAnalyzer.UnitTests.Lines
@@ -16,9 +17,18 @@ namespace LogsAnalyzer.UnitTests.Lines
             
             var parsingResult = parser.ParseShort($"some time;{customerId};{pageId}");
             
-            Assert.That(parsingResult.Success, Is.True);
-            Assert.That(parsingResult.Value.CustomerId, Is.EqualTo(customerId));
-            Assert.That(parsingResult.Value.PageId, Is.EqualTo(pageId));
+            switch (parsingResult)
+            {
+                case Failure<LogEntry>:
+                    Assert.Fail();
+                    break;
+                case Success<LogEntry> success:
+                    Assert.That(success.Value.CustomerId, Is.EqualTo(customerId));
+                    Assert.That(success.Value.PageId, Is.EqualTo(pageId));
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(parsingResult));
+            }
         }
 
         [Test]
@@ -30,10 +40,19 @@ namespace LogsAnalyzer.UnitTests.Lines
             LogEntryParser parser = new LogEntryParser(";");
 
             var parsingResult = parser.ParseShort(line);
-
-            Assert.That(parsingResult.Success, Is.False);
-            Assert.That(parsingResult.ErrorMessage, Is.Not.Null);
-            Assert.That(parsingResult.ErrorMessage.Contains(partOfErrorMessage), Is.True);
+            
+            switch (parsingResult)
+            {
+                case Failure<LogEntry> failure:
+                    Assert.That(failure.ErrorMessage, Is.Not.Null);
+                    Assert.That(failure.ErrorMessage.Contains(partOfErrorMessage), Is.True);
+                    break;
+                case Success<LogEntry>:
+                    Assert.Fail();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(parsingResult));
+            }
         }
 
         [Test]
@@ -45,9 +64,18 @@ namespace LogsAnalyzer.UnitTests.Lines
 
             var parsingResult = parser.ParseShort($"2024-10-19T22:19:31;{customerId};{pageId}");
 
-            Assert.That(parsingResult.Success, Is.True);
-            Assert.That(parsingResult.Value.CustomerId, Is.EqualTo(customerId));
-            Assert.That(parsingResult.Value.PageId, Is.EqualTo(pageId));
+            switch (parsingResult)
+            {
+                case Failure<LogEntry>:
+                    Assert.Fail();
+                    break;
+                case Success<LogEntry> success:
+                    Assert.That(success.Value.CustomerId, Is.EqualTo(customerId));
+                    Assert.That(success.Value.PageId, Is.EqualTo(pageId));
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(parsingResult));
+            }
         }
 
         [Test]
@@ -60,10 +88,19 @@ namespace LogsAnalyzer.UnitTests.Lines
             LogEntryParser parser = new LogEntryParser(";");
 
             var parsingResult = parser.Parse(line);
-
-            Assert.That(parsingResult.Success, Is.False);
-            Assert.That(parsingResult.ErrorMessage, Is.Not.Null);
-            Assert.That(parsingResult.ErrorMessage.Contains(partOfErrorMessage), Is.True);
+            
+            switch (parsingResult)
+            {
+                case Failure<LogEntry> failure:
+                    Assert.That(failure.ErrorMessage, Is.Not.Null);
+                    Assert.That(failure.ErrorMessage.Contains(partOfErrorMessage), Is.True);
+                    break;
+                case Success<LogEntry>:
+                    Assert.Fail();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(parsingResult));
+            }
         }
         
         #endregion
@@ -83,10 +120,19 @@ namespace LogsAnalyzer.UnitTests.Lines
 
             var parsingResult = parser.Parse(bytes);
 
-            Assert.That(parsingResult.Success, Is.True);
-            Assert.That(parsingResult.Value.CustomerId, Is.EqualTo(customerId));
-            Assert.That(parsingResult.Value.PageId, Is.EqualTo(pageId));
-            Assert.That(parsingResult.Value.DateTime.ToString("s"), Is.EqualTo(timeMark));
+            switch (parsingResult)
+            {
+                case Failure<LogEntry>:
+                    Assert.Fail();
+                    break;
+                case Success<LogEntry> success:
+                    Assert.That(success.Value.CustomerId, Is.EqualTo(customerId));
+                    Assert.That(success.Value.PageId, Is.EqualTo(pageId));
+                    Assert.That(success.Value.DateTime.ToString("s"), Is.EqualTo(timeMark));
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(parsingResult));
+            }
         }
 
         [Test]
@@ -101,9 +147,18 @@ namespace LogsAnalyzer.UnitTests.Lines
             byte[] bytes = line.Select(c => (byte)c).ToArray();
             var parsingResult = parser.Parse(bytes);
 
-            Assert.That(parsingResult.Success, Is.False);
-            Assert.That(parsingResult.ErrorMessage, Is.Not.Null);
-            Assert.That(parsingResult.ErrorMessage.Contains(partOfErrorMessage), Is.True);
+            switch (parsingResult)
+            {
+                case Failure<LogEntry> failure:
+                    Assert.That(failure.ErrorMessage, Is.Not.Null);
+                    Assert.That(failure.ErrorMessage.Contains(partOfErrorMessage), Is.True);
+                    break;
+                case Success<LogEntry>:
+                    Assert.Fail();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(parsingResult));
+            }
         }
 
         #endregion

@@ -25,17 +25,27 @@ internal class LogsAnalyzerService : IHostedService
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        Result<string[]> files = GetLogFiles();
-        if (files.IsError)
+        Result<string[]> readFilesResult = GetLogFiles();
+
+        string[] files;
+        
+        switch (readFilesResult)
         {
-            ProcessErrors(files.ErrorMessage);
-            return;
+            case Failure<string[]> failure:
+                ProcessErrors(failure.ErrorMessage);
+                return;
+            case Success<string[]> success:
+                files = success.Value;
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(files));
         }
-        _logger.LogInformation($"{files.Value.Length} logs will be analyzed.");
+        
+        _logger.LogInformation($"{files.Length} logs will be analyzed.");
 
         ILogEntryParser parser = new LogEntryParser(_configuration.LineDelimiter);
-        ILinesSourceAsync logsReader = new LogAsStringsReader(_fileReaderFactory, files.Value, parser);
-        ILinesSourceAsync logAsBytesReader = new LogAsBytesReader(_fileReaderFactory, files.Value, new LogEntriesExtractor(parser), _logger);
+        ILinesSourceAsync logsReader = new LogAsStringsReader(_fileReaderFactory, files, parser);
+        ILinesSourceAsync logAsBytesReader = new LogAsBytesReader(_fileReaderFactory, files, new LogEntriesExtractor(parser), _logger);
         
         ITrafficAnalyzer trafficAnalyzer = new TrafficAnalyzerDependingOnDay();
         // ITrafficAnalyzer trafficAnalyzer = new TrafficAnalyzerRegardlessOfTheDay();

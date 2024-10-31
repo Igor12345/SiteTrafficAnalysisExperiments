@@ -1,4 +1,5 @@
-﻿using LogsAnalyzer.Analyzers;
+﻿using Infrastructure;
+using LogsAnalyzer.Analyzers;
 using LogsAnalyzer.LogEntries;
 
 namespace LogsAnalyzer.UnitTests.Analyzers
@@ -84,13 +85,13 @@ namespace LogsAnalyzer.UnitTests.Analyzers
         {
             LogEntryParser parser = new LogEntryParser(";");
             await foreach (string line in FirstDayLogsSource())
-                yield return parser.Parse(line).Value;
+                yield return (parser.Parse(line) as Success<LogEntry>)!.Value;
 
             if (forDays < 2)
                 yield break;
 
             await foreach (string line in SecondDayLogsSource())
-                yield return parser.Parse(line).Value;
+                yield return (parser.Parse(line) as Success<LogEntry>)!.Value;
         }
     }
 }

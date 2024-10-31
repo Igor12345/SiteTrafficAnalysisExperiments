@@ -20,28 +20,35 @@ public sealed class LogEntriesExtractor
     }
 
     //this is hardcoded for UTF-8
-    public ExtractionResult ExtractRecords(ReadOnlySpan<byte> input, ExpandableStorage<LogEntry> records)
+    public ExtractionResult ExtractRecords(ReadOnlyMemory<byte> input, ExpandableStorage<LogEntry> records)
     {
         int lineIndex = 0;
         int endLine = 0;
         int endOfLastLine = -1;
+        var inputSpan = input.Span;
         for (int i = 0; i < input.Length - 1; i++)
         {
-            if (input[i] == _eol[0] && input[i + 1] == _eol[1])
+            if (inputSpan[i] == _eol[0] && inputSpan[i + 1] == _eol[1])
             {
                 endOfLastLine = i + 1;
                 var startLine = endLine;
 
                 //todo text will include eof. the question with the last line.
                 endLine = i + 2;
-                var result = _parser.Parse(input[startLine..endLine]);
-
-                if (!result.Success)
-                    return ExtractionResult.Error(result.ErrorMessage);
-
-                records.Add(result.Value);
-                lineIndex++;
-                i++;
+                var parsingResult = _parser.Parse(input[startLine..endLine]);
+                
+                switch (parsingResult)
+                {
+                    case Success<LogEntry> success:
+                        records.Add(success.Value);
+                        lineIndex++;
+                        i++;
+                        break;
+                    case Failure<LogEntry> failure:
+                        return ExtractionResult.Error(failure.ErrorMessage);
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(parsingResult));
+                }
             }
         }
 

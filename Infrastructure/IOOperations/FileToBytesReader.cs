@@ -38,13 +38,14 @@ public class FileToBytesReader<T> : IBytesProducer<T>
                 _cancellationToken);
         }
 
-        if (!result.Success)
-            throw new InvalidOperationException(result.ErrorMessage);
-
-        var nextPackage = result.Value.ActuallyRead == 0
-            ? dataChunkPackage with { IsLastPart = true, WrittenBytesLength = result.Value.Size }
-            : dataChunkPackage with { WrittenBytesLength = result.Value.Size };
-        return nextPackage;
+        return result.Execute(value =>
+            {
+                var nextPackage = value.ActuallyRead == 0
+                    ? dataChunkPackage with { IsLastPart = true, WrittenBytesLength = value.Size }
+                    : dataChunkPackage with { WrittenBytesLength = value.Size };
+                return nextPackage;
+            },
+            (message) => { throw new InvalidOperationException(message); });
     }
 
     public void Dispose()

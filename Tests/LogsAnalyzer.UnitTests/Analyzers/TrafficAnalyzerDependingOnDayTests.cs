@@ -1,4 +1,5 @@
-﻿using LogsAnalyzer.Analyzers;
+﻿using Infrastructure;
+using LogsAnalyzer.Analyzers;
 using LogsAnalyzer.LogEntries;
 
 namespace LogsAnalyzer.UnitTests.Analyzers;
@@ -46,21 +47,21 @@ internal class TrafficAnalyzerDependingOnDayTests
     private static async IAsyncEnumerable<LogEntry> LogsSource(int forDays)
     {
         LogEntryParser parser = new LogEntryParser(";");
-
+        
         await foreach (string line in FirstDayLogsSource())
-            yield return parser.Parse(line).Value;
+            yield return (parser.Parse(line) as Success<LogEntry>)!.Value;
 
         if (forDays < 2)
             yield break;
 
         await foreach (string line in SecondDayLogsSource())
-            yield return parser.Parse(line).Value;
+            yield return (parser.Parse(line) as Success<LogEntry>)!.Value;
 
         if (forDays < 3)
             yield break;
 
         await foreach (string line in ThirdDayLogsSource())
-            yield return parser.Parse(line).Value;
+            yield return (parser.Parse(line) as Success<LogEntry>)!.Value;
     }
 
     private static async IAsyncEnumerable<string> FirstDayLogsSource()
